@@ -21,7 +21,7 @@ class Defaults:
     # ----------------------
     # ALE Parameters
     # ----------------------
-    BASE_ROM_PATH = "../roms/"
+    BASE_ROM_PATH = "./roms/"
     ROM = 'ms_pacman.bin'
     FRAME_SKIP = 4
     REPEAT_ACTION_PROBABILITY = 0
