@@ -33,8 +33,8 @@ class EpisodicControl(object):
 
         # CREATE A FOLDER TO HOLD RESULTS
         time_str = time.strftime("_%m-%d-%H-%M_", time.gmtime())
-        self.exp_dir = self.exp_pref + time_str + \
-                       "{}".format(self.ec_discount).replace(".", "p")
+        self.exp_dir = self.exp_pref + time_str + "{}".format(
+            self.ec_discount).replace(".", "p")
 
         try:
             os.stat(self.exp_dir)
@@ -181,7 +181,7 @@ class EpisodicControl(object):
                                                         self.episode_reward))
 
     def finish_epoch(self, epoch):
-        qec_file = open(self.exp_dir + '/qec_table_file_' + str(epoch) + \
+        qec_file = open(self.exp_dir + '/qec_table_file_' + str(epoch) +
                         '.pkl', 'w')
         cPickle.dump(self.qec_table, qec_file, 2)
         qec_file.close()

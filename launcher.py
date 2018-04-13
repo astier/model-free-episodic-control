@@ -173,8 +173,8 @@ def process_args(args, defaults, description):
 
     parameters = parser.parse_args(args)
     if parameters.experiment_prefix is None:
-        parameters.experiment_prefix = "results/" + \
-        os.path.splitext(os.path.basename(parameters.rom))[0]
+        parameters.experiment_prefix = "results/" + os.path.splitext(
+            os.path.basename(parameters.rom))[0]
 
     if parameters.death_ends_episode == 'true':
         parameters.death_ends_episode = True

@@ -6,7 +6,7 @@ import image_preprocessing as ip
 from sklearn.neighbors import BallTree, KDTree
 
 
-class LRU_KNN(object):
+class LruKnn(object):
     def __init__(self, capacity, dimension_result):
         self.capacity = capacity
         self.states = np.zeros((capacity, dimension_result))
@@ -85,7 +85,7 @@ class QECTable(object):
         self.buffer_maximum_size = buffer_size
         self.rng = rng
         for i in range(num_actions):
-            self.ec_buffer.append(LRU_KNN(buffer_size, state_dimension))
+            self.ec_buffer.append(LruKnn(buffer_size, state_dimension))
 
         # projection
         """
@@ -100,8 +100,8 @@ class QECTable(object):
                                         dimension_observation, p_type):
         if p_type == 'random':
             self.matrix_projection = self.rng.randn(dimension_result,
-                                                    dimension_observation).astype(
-                np.float32)
+                                                    dimension_observation) \
+                .astype(np.float32)
         elif p_type == 'VAE':
             pass
         else:
@@ -114,7 +114,7 @@ class QECTable(object):
         state = np.dot(self.matrix_projection, s.flatten())
 
         q_value = self.ec_buffer[a].peek(state, None, modify=False)
-        if q_value != None:
+        if q_value is not None:
             return q_value
 
         return self.ec_buffer[a].knn_value(state, self.knn)
@@ -123,7 +123,7 @@ class QECTable(object):
                r):  # s is 84*84*3;  a is 0 to num_actions; r is reward
         state = np.dot(self.matrix_projection, s.flatten())
         q_value = self.ec_buffer[a].peek(state, r, modify=True)
-        if q_value == None:
+        if q_value is None:
             self.ec_buffer[a].add(state, r)
 
 
