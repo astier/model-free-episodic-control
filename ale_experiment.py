@@ -112,7 +112,7 @@ class ALEExperiment(object):
         return reward
 
     def _step(self, action):
-        """ Repeat one action the appopriate number of times and return
+        """ Repeat one action the appropriate number of times and return
         the summed reward. """
         reward = 0
         for _ in range(self.frame_skip):

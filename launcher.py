@@ -75,7 +75,7 @@ def process_args(args, defaults, description):
                         help='Decay rate for rms_prop (default: %(default)s)')
     parser.add_argument('--rms-epsilon', dest="rms_epsilon",
                         type=float, default=defaults.RMS_EPSILON,
-                        help='Denominator epsilson for rms_prop ' +
+                        help='Denominator epsilon for rms_prop ' +
                              '(default: %(default)s)')
     parser.add_argument('--momentum', type=float, default=defaults.MOMENTUM,
                         help=('Momentum term for Nesterov momentum. ' +
@@ -185,7 +185,7 @@ def process_args(args, defaults, description):
 
     if parameters.freeze_interval > 0:
         # This addresses an inconsistency between the Nature paper and
-        # the Deepmind code.  The paper states that the target network
+        # the DeepMind code.  The paper states that the target network
         # update frequency is "measured in the number of parameter
         # updates".  In the code it is actually measured in the number
         # of action choices.
