@@ -7,6 +7,7 @@ running script.
 import os
 import argparse
 import logging
+
 try:
     import ale_python_interface
 except ImportError:
@@ -33,10 +34,12 @@ def process_args(args, defaults, description):
                         help='ROM to run (default: %(default)s)')
     parser.add_argument('-e', '--epochs', dest="epochs", type=int,
                         default=defaults.EPOCHS,
-                        help='Number of training epochs (default: %(default)s)')
+                        help='Number of training epochs (default: %('
+                             'default)s)')
     parser.add_argument('-s', '--steps-per-epoch', dest="steps_per_epoch",
                         type=int, default=defaults.STEPS_PER_EPOCH,
-                        help='Number of steps per epoch (default: %(default)s)')
+                        help='Number of steps per epoch (default: %('
+                             'default)s)')
     parser.add_argument('-t', '--test-length', dest="steps_per_test",
                         type=int, default=defaults.STEPS_PER_TEST,
                         help='Number of steps per test (default: %(default)s)')
@@ -46,11 +49,11 @@ def process_args(args, defaults, description):
     parser.add_argument('--experiment-prefix', dest="experiment_prefix",
                         default=None,
                         help='Experiment name prefix '
-                        '(default is the name of the game)')
+                             '(default is the name of the game)')
     parser.add_argument('--frame-skip', dest="frame_skip",
                         default=defaults.FRAME_SKIP, type=int,
                         help='Every how many frames to process '
-                        '(default: %(default)s)')
+                             '(default: %(default)s)')
     parser.add_argument('--repeat-action-probability',
                         dest="repeat_action_probability",
                         default=defaults.REPEAT_ACTION_PROBABILITY, type=float,
@@ -73,9 +76,9 @@ def process_args(args, defaults, description):
     parser.add_argument('--rms-epsilon', dest="rms_epsilon",
                         type=float, default=defaults.RMS_EPSILON,
                         help='Denominator epsilson for rms_prop ' +
-                        '(default: %(default)s)')
+                             '(default: %(default)s)')
     parser.add_argument('--momentum', type=float, default=defaults.MOMENTUM,
-                        help=('Momentum term for Nesterov momentum. '+
+                        help=('Momentum term for Nesterov momentum. ' +
                               '(default: %(default)s)'))
     parser.add_argument('--clip-delta', dest="clip_delta", type=float,
                         default=defaults.CLIP_DELTA,
@@ -115,7 +118,7 @@ def process_args(args, defaults, description):
                               '(default: %(default)s)'))
     parser.add_argument('--update-frequency', dest="update_frequency",
                         type=int, default=defaults.UPDATE_FREQUENCY,
-                        help=('Number of actions before each SGD update. '+
+                        help=('Number of actions before each SGD update. ' +
                               '(default: %(default)s)'))
     parser.add_argument('--replay-start-size', dest="replay_start_size",
                         type=int, default=defaults.REPLAY_START_SIZE,
@@ -219,7 +222,7 @@ def launch(args, defaults, description):
         if sys.platform == 'darwin':
             import pygame
             pygame.init()
-            ale.setBool('sound', False) # Sound doesn't work on OSX
+            ale.setBool('sound', False)  # Sound doesn't work on OSX
 
     ale.setBool('display_screen', parameters.display_screen)
     ale.setFloat('repeat_action_probability',
@@ -236,7 +239,8 @@ def launch(args, defaults, description):
             qec_table = EC_functions.QECTable(parameters.knn,
                                               parameters.state_dimension,
                                               parameters.projection_type,
-                                              defaults.RESIZED_WIDTH*defaults.RESIZED_HEIGHT,
+                                              defaults.RESIZED_WIDTH *
+                                              defaults.RESIZED_HEIGHT,
                                               parameters.buffer_size,
                                               num_actions,
                                               rng)
@@ -266,6 +270,7 @@ def launch(args, defaults, description):
                                               rng)
 
     experiment.run()
+
 
 if __name__ == '__main__':
     pass

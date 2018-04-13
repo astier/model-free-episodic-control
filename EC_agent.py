@@ -11,7 +11,8 @@ import EC_functions
 
 
 class EpisodicControl(object):
-    def __init__(self, qec_table, ec_discount, num_actions, epsilon_start, epsilon_min, epsilon_decay, exp_pref, rng):
+    def __init__(self, qec_table, ec_discount, num_actions, epsilon_start,
+                 epsilon_min, epsilon_decay, exp_pref, rng):
         self.qec_table = qec_table
         self.ec_discount = ec_discount
         self.num_actions = num_actions
@@ -58,11 +59,13 @@ class EpisodicControl(object):
     def _open_results_file(self):
         logging.info("OPENING " + self.exp_dir + '/results.csv')
         self.results_file = open(self.exp_dir + '/results.csv', 'w', 0)
-        self.results_file.write('epoch, episode_nums, total_reward, avg_reward\n')
+        self.results_file.write(
+            'epoch, episode_nums, total_reward, avg_reward\n')
         self.results_file.flush()
 
     def _update_results_file(self, epoch, total_episodes, total_reward):
-        out = "{},{},{},{}\n".format(epoch, total_episodes, total_reward, total_reward/total_episodes)
+        out = "{},{},{},{}\n".format(epoch, total_episodes, total_reward,
+                                     total_reward / total_episodes)
         self.results_file.write(out)
         self.results_file.flush()
 
@@ -92,7 +95,8 @@ class EpisodicControl(object):
 
         return return_action
 
-    def _choose_action(self, trace_list, qec_table, epsilon, observation, reward):
+    def _choose_action(self, trace_list, qec_table, epsilon, observation,
+                       reward):
         trace_list.add_trace(self.last_img, self.last_action, reward, False)
 
         # epsilon greedy
@@ -128,7 +132,9 @@ class EpisodicControl(object):
 
         self.epsilon = max(self.epsilon_min, self.epsilon - self.epsilon_rate)
 
-        action = self._choose_action(self.trace_list, self.qec_table, self.epsilon, observation, np.clip(reward, -1, 1))
+        action = self._choose_action(self.trace_list, self.qec_table,
+                                     self.epsilon, observation,
+                                     np.clip(reward, -1, 1))
 
         self.last_action = action
         self.last_img = observation
@@ -154,12 +160,13 @@ class EpisodicControl(object):
         total_time = time.time() - self.start_time
 
         # Store the latest sample.
-        self.trace_list.add_trace(self.last_img, self.last_action, np.clip(reward, -1, 1), True)
+        self.trace_list.add_trace(self.last_img, self.last_action,
+                                  np.clip(reward, -1, 1), True)
         """
         do update
         """
         q_return = 0.
-        for i in range(len(self.trace_list.trace_list)-1, -1, -1):
+        for i in range(len(self.trace_list.trace_list) - 1, -1, -1):
             node = self.trace_list.trace_list[i]
             q_return = q_return * self.ec_discount + node.reward
             self.qec_table.update(node.image, node.action, q_return)
@@ -167,10 +174,11 @@ class EpisodicControl(object):
         # calculate time
         rho = 0.98
         self.steps_sec_ema *= rho
-        self.steps_sec_ema += (1. - rho) * (self.step_counter/total_time)
+        self.steps_sec_ema += (1. - rho) * (self.step_counter / total_time)
         logging.info("steps/second: {:.2f}, avg: {:.2f}".format(
-            self.step_counter/total_time, self.steps_sec_ema))
-        logging.info('episode {} reward: {:.2f}'.format(self.total_episodes, self.episode_reward))
+            self.step_counter / total_time, self.steps_sec_ema))
+        logging.info('episode {} reward: {:.2f}'.format(self.total_episodes,
+                                                        self.episode_reward))
 
     def finish_epoch(self, epoch):
         qec_file = open(self.exp_dir + '/qec_table_file_' + str(epoch) + \
@@ -178,9 +186,9 @@ class EpisodicControl(object):
         cPickle.dump(self.qec_table, qec_file, 2)
         qec_file.close()
 
-        self._update_results_file(epoch, self.total_episodes, self.total_reward)
+        self._update_results_file(epoch, self.total_episodes,
+                                  self.total_reward)
         self.total_episodes = 0
         self.total_reward = 0
 
         # EC_functions.print_table(self.qec_table)
-

@@ -37,7 +37,8 @@ class ALEExperiment(object):
                                        self.height, self.width),
                                       dtype=np.uint8)
 
-        self.terminal_lol = False # Most recent episode ended on a loss of life
+        self.terminal_lol = False  # Most recent episode ended on a loss of
+        # life
         self.max_start_nullops = max_start_nullops
         self.rng = rng
 
@@ -86,7 +87,8 @@ class ALEExperiment(object):
             self.ale.reset_game()
 
             if self.max_start_nullops > 0:
-                random_actions = self.rng.randint(0, self.max_start_nullops+1)
+                random_actions = self.rng.randint(0,
+                                                  self.max_start_nullops + 1)
                 for _ in range(random_actions):
                     self._act(0)  # Null action
 
@@ -167,7 +169,8 @@ class ALEExperiment(object):
             resize_height = int(round(
                 float(self.height) * self.resized_width / self.width))
 
-            resized = image_preprocessing.resize(image, (self.resized_width, resize_height))
+            resized = image_preprocessing.resize(image, (
+                self.resized_width, resize_height))
 
             # Crop the part we want
             crop_y_cutoff = resize_height - CROP_OFFSET - self.resized_height
@@ -176,7 +179,7 @@ class ALEExperiment(object):
 
             return cropped
         elif self.resize_method == 'scale':
-            return image_preprocessing.resize(image, (self.resized_width, self.resized_height))
+            return image_preprocessing.resize(image, (
+                self.resized_width, self.resized_height))
         else:
             raise ValueError('Unrecognized image resize method.')
-
