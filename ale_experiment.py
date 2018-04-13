@@ -48,7 +48,6 @@ class ALEExperiment(object):
         """Run the desired number of training epochs, a testing epoch
         is conducted after each training epoch.
         """
-
         for epoch in range(1, self.num_epochs + 1):
             self.run_epoch(epoch, self.epoch_length)
             self.agent.finish_epoch(epoch)
@@ -68,7 +67,6 @@ class ALEExperiment(object):
         num_steps - steps per epoch
         testing - True if this Epoch is used for testing and not training
         """
-
         self.terminal_lol = False  # Make sure each epoch starts with a reset.
         steps_left = num_steps
         while steps_left > 0:
@@ -85,7 +83,6 @@ class ALEExperiment(object):
         performs a randomly determined number of null action to randomize
         the initial game state.
         """
-
         if not self.terminal_lol or self.ale.game_over():
             self.ale.reset_game()
 
@@ -105,7 +102,6 @@ class ALEExperiment(object):
         resulting reward and store the resulting screen image in the
         buffer.
         """
-
         reward = self.ale.act(action)
         index = self.buffer_count % self.buffer_length
 
@@ -118,7 +114,6 @@ class ALEExperiment(object):
         """ Repeat one action the appropriate number of times and return
         the summed reward.
         """
-
         reward = 0
         for _ in range(self.frame_skip):
             reward += self._act(action)
@@ -135,7 +130,6 @@ class ALEExperiment(object):
 
         Return: (terminal, num_steps)
         """
-
         self._init_episode()
         start_lives = self.ale.lives()
         action = self.agent.start_episode(self.get_observation())
@@ -156,7 +150,6 @@ class ALEExperiment(object):
 
     def get_observation(self):
         """ Resize and merge the previous two screen images."""
-
         assert self.buffer_count >= 2
         index = self.buffer_count % self.buffer_length - 1
         max_image = np.maximum(self.screen_buffer[index, ...],
@@ -165,7 +158,6 @@ class ALEExperiment(object):
 
     def resize_image(self, image):
         """ Appropriately resize a single image."""
-
         if self.resize_method == 'crop':
             # resize keeping aspect ratio
             resize_height = int(round(

@@ -22,8 +22,7 @@ import EC_functions
 
 
 def process_args(args, defaults, description):
-    """
-    Handle the command line.
+    """Handle the command line.
 
     args     - list of command line arguments (not including executable name)
     defaults - a name space with variables corresponding to each of
@@ -192,14 +191,11 @@ def process_args(args, defaults, description):
         # of action choices.
         parameters.freeze_interval = (parameters.freeze_interval //
                                       parameters.update_frequency)
-
     return parameters
 
 
 def launch(args, defaults, description):
-    """
-    Execute a complete training run.
-    """
+    """Execute a complete training run."""
 
     logging.basicConfig(level=logging.INFO)
     parameters = process_args(args, defaults, description)
@@ -228,11 +224,9 @@ def launch(args, defaults, description):
     ale.setBool('display_screen', parameters.display_screen)
     ale.setFloat('repeat_action_probability',
                  parameters.repeat_action_probability)
-
     ale.loadROM(full_rom_path)
 
     num_actions = len(ale.getMinimalActionSet())
-
     agent = None
 
     if parameters.use_episodic_control:
@@ -269,7 +263,6 @@ def launch(args, defaults, description):
                                               parameters.death_ends_episode,
                                               parameters.max_start_nullops,
                                               rng)
-
     experiment.run()
 
 

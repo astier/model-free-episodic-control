@@ -33,7 +33,7 @@ class EpisodicControl(object):
         else:
             self.epsilon_rate = 0
 
-        # CREATE A FOLDER TO HOLD RESULTS
+        # Create a directory to store results
         time_str = time.strftime("_%m-%d-%H-%M_", time.gmtime())
         self.exp_dir = self.exp_pref + time_str + "{}".format(
             self.ec_discount).replace(".", "p")
@@ -72,8 +72,7 @@ class EpisodicControl(object):
         self.results_file.flush()
 
     def start_episode(self, observation):
-        """
-        This method is called once at the beginning of each episode.
+        """This method is called once at the beginning of each episode.
         No reward is provided, because reward is only available after
         an action has been taken.
 
@@ -83,7 +82,6 @@ class EpisodicControl(object):
         Returns:
            An integer action
         """
-
         self.step_counter = 0
         self.episode_reward = 0
 
@@ -92,7 +90,6 @@ class EpisodicControl(object):
         return_action = self.rng.randint(0, self.num_actions)
 
         self.last_action = return_action
-
         self.last_img = observation
 
         return return_action
@@ -117,8 +114,7 @@ class EpisodicControl(object):
         return maximum_action
 
     def step(self, reward, observation):
-        """
-        This method is called each time step.
+        """This method is called each time step.
 
         Arguments:
            reward      - Real valued reward.
@@ -126,9 +122,7 @@ class EpisodicControl(object):
 
         Returns:
            An integer action.
-
         """
-
         self.step_counter += 1
         self.episode_reward += reward
 
@@ -137,15 +131,12 @@ class EpisodicControl(object):
         action = self._choose_action(self.trace_list, self.qec_table,
                                      self.epsilon, observation,
                                      np.clip(reward, -1, 1))
-
         self.last_action = action
         self.last_img = observation
-
         return action
 
     def end_episode(self, reward, terminal=True):
-        """
-        This function is called once at the end of an episode.
+        """This function is called once at the end of an episode.
 
         Arguments:
            reward      - Real valued reward.
@@ -154,7 +145,6 @@ class EpisodicControl(object):
         Returns:
             None
         """
-
         self.episode_reward += reward
         self.total_reward += self.episode_reward
         self.total_episodes += 1
@@ -164,9 +154,7 @@ class EpisodicControl(object):
         # Store the latest sample.
         self.trace_list.add_trace(self.last_img, self.last_action,
                                   np.clip(reward, -1, 1), True)
-        """
-        do update
-        """
+        # Do update
         q_return = 0.
         for i in range(len(self.trace_list.trace_list) - 1, -1, -1):
             node = self.trace_list.trace_list[i]

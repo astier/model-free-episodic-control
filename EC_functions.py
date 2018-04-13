@@ -87,11 +87,8 @@ class QECTable(object):
         for i in range(num_actions):
             self.ec_buffer.append(LruKnn(buffer_size, state_dimension))
 
-        # projection
-        """
-        I tried to make a function self.projection(state)
-        but cPickle can not pickle an object that has an function attribute
-        """
+        # I tried to make a function self.projection(state)
+        # but cPickle can not pickle an object that has an function attribute
         self._initialize_projection_function(state_dimension,
                                              observation_dimension,
                                              projection_type)
@@ -107,10 +104,10 @@ class QECTable(object):
         else:
             raise ValueError('unrecognized projection type')
 
-    """estimate the value of Q_EC(s,a)  O(N*logK*D)  check existence: O(N) 
-    -> KNN: O(D*N*logK)"""
-
     def estimate(self, s, a):
+        """Estimate the value of Q_EC(s,a)  O(N*logK*D)  check existence: O(N)
+            -> KNN: O(D*N*logK)
+        """
         state = np.dot(self.matrix_projection, s.flatten())
 
         q_value = self.ec_buffer[a].peek(state, None, modify=False)
