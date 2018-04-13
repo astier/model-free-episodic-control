@@ -6,7 +6,7 @@ import image_preprocessing as ip
 from sklearn.neighbors import BallTree, KDTree
 
 
-class LRU_KNN:
+class LRU_KNN(object):
     def __init__(self, capacity, dimension_result):
         self.capacity = capacity
         self.states = np.zeros((capacity, dimension_result))

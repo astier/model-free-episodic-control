@@ -10,7 +10,7 @@ import launcher
 import sys
 
 
-class Defaults:
+class Defaults(object):
     # ----------------------
     # Experiment Parameters
     # ----------------------
