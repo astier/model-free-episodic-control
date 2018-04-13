@@ -24,3 +24,7 @@ Within the terminal execute:
 To get more running details use:
 
 `python run_episodic_control.py -h`.
+
+A results directory will be created where the agents Q<sup>EC</sup>-tables for
+each epoch and their results are stored. **WARNING:** The Q<sup>EC</sup>-tables
+become very big very quick (several gigabytes).
