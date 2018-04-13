@@ -1,9 +1,6 @@
 __author__ = 'sudeep raja'
 import numpy as np
-import cPickle
-import heapq
-import image_preprocessing as ip
-from sklearn.neighbors import BallTree, KDTree
+from sklearn.neighbors import KDTree
 
 
 class LruKnn(object):

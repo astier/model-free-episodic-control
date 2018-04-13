@@ -4,9 +4,9 @@ training process.  It shouldn't be executed directly; it is used by
 running script.
 
 """
-import os
 import argparse
 import logging
+import os
 
 try:
     import ale_python_interface
