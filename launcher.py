@@ -66,7 +66,7 @@ def process_args(args, defaults, description):
                               '(default: %(default)s)'))
     parser.add_argument('--batch-accumulator', dest="batch_accumulator",
                         type=str, default=defaults.BATCH_ACCUMULATOR,
-                        help=('sum|mean (default: %(default)s)'))
+                        help='sum|mean (default: %(default)s)')
     parser.add_argument('--learning-rate', dest="learning_rate",
                         type=float, default=defaults.LEARNING_RATE,
                         help='Learning rate (default: %(default)s)')
@@ -126,12 +126,12 @@ def process_args(args, defaults, description):
                               '(default: %(default)s)'))
     parser.add_argument('--resize-method', dest="resize_method",
                         type=str, default=defaults.RESIZE_METHOD,
-                        help=('crop|scale (default: %(default)s)'))
+                        help='crop|scale (default: %(default)s)')
     parser.add_argument('--nn-file', dest="nn_file", type=str, default=None,
                         help='Pickle file containing trained net.')
     parser.add_argument('--death-ends-episode', dest="death_ends_episode",
                         type=str, default=defaults.DEATH_ENDS_EPISODE,
-                        help=('true|false (default: %(default)s)'))
+                        help='true|false (default: %(default)s)')
     parser.add_argument('--max-start-nullops', dest="max_start_nullops",
                         type=int, default=defaults.MAX_START_NULLOPS,
                         help=('Maximum number of null-ops at the start ' +
