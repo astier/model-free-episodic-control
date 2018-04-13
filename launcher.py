@@ -1,9 +1,10 @@
 #! /usr/bin/env python2
+
 """This script handles reading command line arguments and starting the
 training process.  It shouldn't be executed directly; it is used by
 running script.
-
 """
+
 import argparse
 import logging
 import os

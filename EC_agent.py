@@ -1,7 +1,5 @@
 __author__ = 'frankhe'
-"""
-episodic control agent
-"""
+
 import time
 import os
 import logging
@@ -11,6 +9,8 @@ import EC_functions
 
 
 class EpisodicControl(object):
+    """Episodic Control Agent"""
+
     def __init__(self, qec_table, ec_discount, num_actions, epsilon_start,
                  epsilon_min, epsilon_decay, exp_pref, rng):
         self.qec_table = qec_table

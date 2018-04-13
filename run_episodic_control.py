@@ -1,34 +1,26 @@
 #! /usr/bin/env python2
+
+"""Execute DQN or Episodic control"""
+
 __author__ = 'frankhe'
-
-"""
-Execute DQN or Episodic control
-
-"""
 
 import launcher
 import sys
 
 
 class Defaults(object):
-    # ----------------------
     # Experiment Parameters
-    # ----------------------
     STEPS_PER_EPOCH = 300  # 10000
     EPOCHS = 2  # 5000
     STEPS_PER_TEST = 0
 
-    # ----------------------
     # ALE Parameters
-    # ----------------------
     BASE_ROM_PATH = "./roms/"
     ROM = 'ms_pacman.bin'
     FRAME_SKIP = 4
     REPEAT_ACTION_PROBABILITY = 0
 
-    # ----------------------
     # Agent/Network parameters:
-    # ----------------------
     UPDATE_RULE = 'deepmind_rmsprop'
     BATCH_ACCUMULATOR = 'sum'
     LEARNING_RATE = .00025
