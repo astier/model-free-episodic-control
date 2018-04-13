@@ -1,3 +1,5 @@
+#! /usr/bin/env python2
+
 __author__ = 'Nathan Sprague'
 
 import logging
