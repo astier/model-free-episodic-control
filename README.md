@@ -11,10 +11,9 @@ which is a modification of
 * Numpy
 * SciPy
 * Matplotlib
-* [Arcade Learning Environment](https://github.com/mgbellemare/Arcade-Learning-Environment)
-or [OpenAI gym](https://github.com/openai/gym)
+* OpenAI Gym
 * A reasonable CPU
-* Game roms which must be stored in the roms directory.
+* Game Rom (put them in the rom directory)
 
 # Running
 Within the terminal execute:
@@ -28,5 +27,5 @@ To get more running details use:
 A results directory will be created where the agents Q<sup>EC</sup>-tables for
 each epoch and their results are stored.
 
-**WARNING:** The Q<sup>EC</sup>-tables
-become very big very quick (several gigabytes).
+**WARNING:** The Q<sup>EC</sup>-tables become very big very quick.
+Every Q<sup>EC</sup>-table can be several gigabytes big.
