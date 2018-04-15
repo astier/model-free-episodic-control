@@ -3,24 +3,26 @@ Implementation of the
 **[Model-Free Episodic Control](http://arxiv.org/abs/1606.04460)**
 algorithm. This is a fork from
 [sudeepraja/Model-Free-Episodic-Control](https://github.com/sudeepraja/Model-Free-Episodic-Control)
-which is a modification of
+which itself is a modification of the original work from
 [ShibiHe/Model-Free-Episodic-Control](https://github.com/ShibiHe/Model-Free-Episodic-Control).
 
 # Dependencies
-* Python 2.7
+* Python 2
 * Numpy
 * SciPy
 * Matplotlib
 * OpenAI Gym
 * A reasonable CPU
-* Game Rom (put them in the rom directory)
+* Rom of your desired game (some example roms are already in the rom directory)
 
 # Running
 Within the terminal execute:
 
 `python run_episodic_control.py`
 
-To get more running details use:
+To change hyperparameters change them directly in the *run_episodic_control.py*
+file or pass them as options in the command line. To see all command line
+options run:
 
 `python run_episodic_control.py -h`.
 

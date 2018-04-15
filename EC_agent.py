@@ -98,20 +98,20 @@ class EpisodicControl(object):
                        reward):
         trace_list.add_trace(self.last_img, self.last_action, reward, False)
 
-        # epsilon greedy
+        # Epsilon greedy approach chooses random action for exploration
         if self.rng.rand() < epsilon:
             return self.rng.randint(0, self.num_actions)
 
-        value = -100
-        maximum_action = 0
-        # argmax(Q(s,a))
+        # argmax(Q(s,a)) for exploitation
+        best_value = float('-inf')
+        best_action = None
         for action in range(self.num_actions):
-            value_t = qec_table.estimate(observation, action)
-            if value_t > value:
-                value = value_t
-                maximum_action = action
+            value = qec_table.estimate(observation, action)
+            if value > best_value:
+                best_value = value
+                best_action = action
 
-        return maximum_action
+        return best_action
 
     def step(self, reward, observation):
         """This method is called each time step.

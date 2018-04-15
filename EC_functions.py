@@ -105,8 +105,10 @@ class QECTable(object):
             raise ValueError('unrecognized projection type')
 
     def estimate(self, s, a):
-        """Estimate the value of Q_EC(s,a)  O(N*logK*D)  check existence: O(N)
-            -> KNN: O(D*N*logK)
+        """Determine Q(s,a).
+
+        First search in the QEC-table if an entry already exists (O(N)).
+        Otherwise estimate by KNN (O(N*D*logK)).
         """
         state = np.dot(self.matrix_projection, s.flatten())
         action_buffer = self.ec_buffer[a]

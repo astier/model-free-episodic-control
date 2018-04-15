@@ -16,7 +16,7 @@ class Defaults(object):
 
     # ALE Parameters
     BASE_ROM_PATH = "./roms/"
-    ROM = 'ms_pacman.bin'
+    ROM = 'qbert.bin'
     FRAME_SKIP = 4
     REPEAT_ACTION_PROBABILITY = 0
 
