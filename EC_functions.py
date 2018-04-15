@@ -109,15 +109,21 @@ class QECTable(object):
             -> KNN: O(D*N*logK)
         """
         state = np.dot(self.matrix_projection, s.flatten())
-
-        q_value = self.ec_buffer[a].peek(state, None, modify=False)
+        action_buffer = self.ec_buffer[a]
+        q_value = action_buffer.peek(state, None, modify=False)
         if q_value is not None:
             return q_value
+        # If the number of elements in the action-buffer is smaller than k
+        # then return an 'infinitely' high reward to make sure that this action
+        # gets explored, otherwise an estimation by the knn-algorithm
+        # can not be performed and throws an exception,
+        # because it needs at least k elements as neighbors.
+        elif action_buffer.curr_capacity < self.knn:
+            return float('inf')
+        return action_buffer.knn_value(state, self.knn)
 
-        return self.ec_buffer[a].knn_value(state, self.knn)
-
-    def update(self, s, a,
-               r):  # s is 84*84*3;  a is 0 to num_actions; r is reward
+    def update(self, s, a, r):
+        """s is 84*84*3;  a is 0 to num_actions; r is reward"""
         state = np.dot(self.matrix_projection, s.flatten())
         q_value = self.ec_buffer[a].peek(state, r, modify=True)
         if q_value is None:
