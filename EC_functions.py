@@ -120,8 +120,11 @@ class QECTable(object):
         # gets explored, otherwise an estimation by the knn-algorithm
         # can not be performed and throws an exception,
         # because it needs at least k elements as neighbors.
+        # TODO: Consider implementing as -inf or filling up action-buffers
+        # randomly before anything else
         elif action_buffer.curr_capacity < self.knn:
             return float('inf')
+
         return action_buffer.knn_value(state, self.knn)
 
     def update(self, s, a, r):

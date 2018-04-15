@@ -23,10 +23,9 @@ class EpisodicControl(object):
         self.epsilon_decay = epsilon_decay
         self.exp_pref = exp_pref
         self.rng = rng
-
         self.trace_list = EC_functions.TraceRecorder()
-
         self.epsilon = self.epsilon_start
+
         if self.epsilon_decay != 0:
             self.epsilon_rate = ((self.epsilon_start - self.epsilon_min) /
                                  self.epsilon_decay)
@@ -44,18 +43,13 @@ class EpisodicControl(object):
             os.makedirs(self.exp_dir)
 
         self._open_results_file()
-
         self.step_counter = None
         self.episode_reward = None
-
         self.total_reward = 0.
         self.total_episodes = 0
-
         self.start_time = None
-
         self.last_img = None
         self.last_action = None
-
         self.steps_sec_ema = 0.
 
     def _open_results_file(self):
@@ -84,14 +78,11 @@ class EpisodicControl(object):
         """
         self.step_counter = 0
         self.episode_reward = 0
-
         self.trace_list.trace_list = []
         self.start_time = time.time()
         return_action = self.rng.randint(0, self.num_actions)
-
         self.last_action = return_action
         self.last_img = observation
-
         return return_action
 
     def _choose_action(self, trace_list, qec_table, epsilon, observation,
@@ -125,9 +116,7 @@ class EpisodicControl(object):
         """
         self.step_counter += 1
         self.episode_reward += reward
-
         self.epsilon = max(self.epsilon_min, self.epsilon - self.epsilon_rate)
-
         action = self._choose_action(self.trace_list, self.qec_table,
                                      self.epsilon, observation,
                                      np.clip(reward, -1, 1))
@@ -142,8 +131,6 @@ class EpisodicControl(object):
            reward      - Real valued reward.
            terminal    - Whether the episode ended intrinsically
                          (ie we didn't run out of steps)
-        Returns:
-            None
         """
         self.episode_reward += reward
         self.total_reward += self.episode_reward

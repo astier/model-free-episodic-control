@@ -13,8 +13,8 @@ CROP_OFFSET = 8
 
 
 class ALEExperiment(object):
-    """The ALEExperiment class handles the logic for training a deep
-    Q-learning agent in the Arcade Learning Environment.
+    """Implements the logic for training an agent in the Arcade Learning
+    Environment.
     """
 
     def __init__(self, ale, agent, resized_width, resized_height,
