@@ -7,7 +7,7 @@ import os
 import logging
 import numpy as np
 import cPickle
-import EC_functions
+import ec_functions
 
 
 class EpisodicControl(object):
@@ -23,7 +23,7 @@ class EpisodicControl(object):
         self.epsilon_decay = epsilon_decay
         self.exp_pref = exp_pref
         self.rng = rng
-        self.trace_list = EC_functions.TraceRecorder()
+        self.trace_list = ec_functions.TraceRecorder()
         self.epsilon = self.epsilon_start
 
         if self.epsilon_decay != 0:

@@ -11,8 +11,8 @@ import sys
 import atari_py.ale_python_interface
 import numpy as np
 
-import EC_functions
-import EC_agent
+import ec_functions
+import ec_agent
 import ale_experiment
 
 BASE_ROM_PATH = "./roms/"
@@ -88,7 +88,7 @@ def setup_ale(display_screen, rom, repeat_action_probability, rng):
 def setup_agent(ale, parameters, rng):
     num_actions = len(ale.getMinimalActionSet())
     qec_table = load_qec_table(num_actions, parameters, rng)
-    agent = EC_agent.EpisodicControl(qec_table,
+    agent = ec_agent.EpisodicControl(qec_table,
                                      parameters.ec_discount,
                                      num_actions,
                                      parameters.epsilon_start,
@@ -101,7 +101,7 @@ def setup_agent(ale, parameters, rng):
 
 def load_qec_table(num_actions, parameters, rng):
     if parameters.qec_table is None:
-        return EC_functions.QECTable(parameters.knn,
+        return ec_functions.QECTable(parameters.knn,
                                      parameters.state_dimension,
                                      parameters.projection_type,
                                      RESIZED_WIDTH *
