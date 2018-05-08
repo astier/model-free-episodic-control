@@ -6,6 +6,11 @@ algorithm. This is a fork of the repository from
 whereas his work is a fork of the original work from
 **[ShibiHe](https://github.com/ShibiHe/Model-Free-Episodic-Control)**.
 
+The contributions of this project so far are only:
+- Refactoring
+- Small Code Improvements
+- Bugfix
+
 
 # Dependencies
 Here's what you need to run the program:
