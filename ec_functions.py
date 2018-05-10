@@ -64,21 +64,6 @@ class LruKnn(object):
         self.tree = KDTree(self.states[:self.curr_capacity])
 
 
-# TODO remove (no usage found)
-class Node(object):
-    def __init__(self, time, state, q_return):
-        self.lru_time = time  # time stamp used for LRU
-        self.state = state
-        self.QEC_value = q_return
-
-
-# TODO remove (no usage found)
-class DistanceNode(object):
-    def __init__(self, distance, index):
-        self.distance = distance
-        self.index = index
-
-
 class QECTable(object):
     def __init__(self, knn, state_dimension, projection_type,
                  observation_dimension, buffer_size, num_actions, rng):
