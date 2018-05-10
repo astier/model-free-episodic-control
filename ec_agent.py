@@ -14,17 +14,18 @@ class EpisodicControl(object):
     """Episodic Control Agent"""
 
     def __init__(self, qec_table, ec_discount, num_actions, epsilon_start,
-                 epsilon_min, epsilon_decay, exp_pref, rng):
+                 epsilon_min, epsilon_decay, rom, rng):
         self.qec_table = qec_table
         self.ec_discount = ec_discount
         self.num_actions = num_actions
         self.epsilon_start = epsilon_start
         self.epsilon_min = epsilon_min
         self.epsilon_decay = epsilon_decay
-        self.exp_pref = exp_pref
         self.rng = rng
         self.trace_list = ec_functions.TraceRecorder()
         self.epsilon = self.epsilon_start
+        self.exp_pref = "results/" + os.path.splitext(
+            os.path.basename(rom))[0]
 
         if self.epsilon_decay != 0:
             self.epsilon_rate = ((self.epsilon_start - self.epsilon_min) /
