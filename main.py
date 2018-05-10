@@ -14,7 +14,7 @@ import experiment
 
 ROMS = "./roms/"
 ROM = 'qbert.bin'
-STEPS_PER_EPOCH = 1000  # 10000
+STEPS_PER_EPOCH = 500  # 10000
 EPOCHS = 3  # 5000
 STEPS_PER_TEST = 0
 FRAME_SKIP = 4
@@ -40,32 +40,36 @@ SEED = 1
 def main():
     """Execute a complete training run."""
     logging.basicConfig(level=logging.INFO)
+
+    # TODO rng necessary?
     rng = np.random.RandomState(seed=SEED)
-    ale = setup_ale(rng)
-    agent = setup_agent(ale, rng)
-    experiment.ALEExperiment(ale, agent, RESIZED_WIDTH, RESIZED_HEIGHT,
+    environment = setup_environment(rng)
+    agent = setup_agent(len(environment.getMinimalActionSet()), rng)
+    experiment.ALEExperiment(environment, agent, RESIZED_WIDTH, RESIZED_HEIGHT,
                              RESIZE_METHOD, EPOCHS, STEPS_PER_EPOCH,
                              STEPS_PER_TEST, FRAME_SKIP, DEATH_ENDS_EPISODE,
                              MAX_START_NULLOPS, rng).run()
 
 
-def setup_ale(rng):
-    ale = atari_py.ale_python_interface.ALEInterface()
-    ale.setInt('random_seed', rng.randint(1000))
-    ale.setBool('display_screen', DISPLAY_SCREEN)
-    ale.loadROM(os.path.join(ROMS, ROM))
-    ale.setFloat('repeat_action_probability', REPEAT_ACTION_PROBABILITY)
-    return ale
+# TODO ale vs gym
+def setup_environment(rng):
+    environment = atari_py.ale_python_interface.ALEInterface()
+    environment.setInt('random_seed', rng.randint(1000))
+    environment.setBool('display_screen', DISPLAY_SCREEN)
+    environment.loadROM(os.path.join(ROMS, ROM))
+    environment.setFloat('repeat_action_probability',
+                         REPEAT_ACTION_PROBABILITY)
+    return environment
 
 
-def setup_agent(ale, rng):
-    num_actions = len(ale.getMinimalActionSet())
+def setup_agent(num_actions, rng):
     qec_table = load_qec_table(num_actions, rng)
     return ec_agent.EpisodicControl(qec_table, DISCOUNT, num_actions,
                                     EPSILON_START, EPSILON_MIN, EPSILON_DECAY,
                                     ROM, rng)
 
 
+# TODO cpickle vs json etc.
 def load_qec_table(num_actions, rng):
     if QEC_TABLE:
         return cPickle.load(open(QEC_TABLE, 'r'))
