@@ -1,7 +1,5 @@
 #! /usr/bin/env python2
 
-__author__ = 'frankhe'
-
 import time
 import os
 import logging

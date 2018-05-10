@@ -4,12 +4,12 @@ import cPickle
 import logging
 import os
 
-import atari_py.ale_python_interface
 import numpy as np
+from atari_py.ale_python_interface import ALEInterface
 
-import agent
-import experiment
-import qec
+from mfec.qec import QEC
+from mfec.agent import EpisodicControl
+from mfec.experiment import ALEExperiment
 
 ROMS = "./roms/"
 ROM = 'qbert.bin'
@@ -37,22 +37,17 @@ SEED = 1
 
 
 def main():
-    """Execute a complete training run."""
     logging.basicConfig(level=logging.INFO)
-
-    # TODO rng necessary?
-    rng = np.random.RandomState(seed=SEED)
+    rng = np.random.RandomState(seed=SEED)  # TODO rng necessary?
     environment = setup_environment(rng)
     agent = setup_agent(len(environment.getMinimalActionSet()), rng)
-    experiment.ALEExperiment(environment, agent, RESIZED_WIDTH, RESIZED_HEIGHT,
-                             RESIZE_METHOD, EPOCHS, STEPS_PER_EPOCH,
-                             STEPS_PER_TEST, FRAME_SKIP, DEATH_ENDS_EPISODE,
-                             MAX_START_NULLOPS, rng).run()
+    ALEExperiment(environment, agent, RESIZED_WIDTH, RESIZED_HEIGHT,
+                  RESIZE_METHOD, EPOCHS, STEPS_PER_EPOCH, STEPS_PER_TEST,
+                  FRAME_SKIP, DEATH_ENDS_EPISODE, MAX_START_NULLOPS, rng).run()
 
 
-# TODO ale vs gym
-def setup_environment(rng):
-    environment = atari_py.ale_python_interface.ALEInterface()
+def setup_environment(rng):  # TODO ale vs gym
+    environment = ALEInterface()
     environment.setInt('random_seed', rng.randint(1000))
     environment.setBool('display_screen', DISPLAY_SCREEN)
     environment.loadROM(os.path.join(ROMS, ROM))
@@ -62,19 +57,17 @@ def setup_environment(rng):
 
 
 def setup_agent(num_actions, rng):
-    qec_table = load_qec_table(num_actions, rng)
-    return agent.EpisodicControl(qec_table, DISCOUNT, num_actions,
-                                 EPSILON_START, EPSILON_MIN, EPSILON_DECAY,
-                                 ROM, rng)
+    return EpisodicControl(load_qec_table(num_actions, rng), DISCOUNT,
+                           num_actions, EPSILON_START, EPSILON_MIN,
+                           EPSILON_DECAY, ROM, rng)
 
 
 # TODO cpickle vs json etc.
 def load_qec_table(num_actions, rng):
     if QEC_TABLE:
         return cPickle.load(open(QEC_TABLE, 'r'))
-    return qec.QEC(KNN, STATE_DIMENSION, PROJECTION_TYPE,
-                   RESIZED_WIDTH * RESIZED_HEIGHT,
-                   BUFFER_SIZE, num_actions, rng)
+    return QEC(KNN, STATE_DIMENSION, PROJECTION_TYPE,
+               RESIZED_WIDTH * RESIZED_HEIGHT, BUFFER_SIZE, num_actions, rng)
 
 
 if __name__ == "__main__":
