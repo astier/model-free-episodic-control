@@ -64,6 +64,7 @@ class LruKnn(object):
         self.tree = KDTree(self.states[:self.curr_capacity])
 
 
+# TODO remove (no usage found)
 class Node(object):
     def __init__(self, time, state, q_return):
         self.lru_time = time  # time stamp used for LRU
@@ -71,6 +72,7 @@ class Node(object):
         self.QEC_value = q_return
 
 
+# TODO remove (no usage found)
 class DistanceNode(object):
     def __init__(self, distance, index):
         self.distance = distance
@@ -133,20 +135,3 @@ class QECTable(object):
         q_value = self.ec_buffer[a].peek(state, r, modify=True)
         if q_value is None:
             self.ec_buffer[a].add(state, r)
-
-
-class TraceNode(object):
-    def __init__(self, observation, action, reward, terminal):
-        self.image = observation
-        self.action = action
-        self.reward = reward
-        self.terminal = terminal
-
-
-class TraceRecorder(object):
-    def __init__(self):
-        self.trace_list = []
-
-    def add_trace(self, observation, action, reward, terminal):
-        node = TraceNode(observation, action, reward, terminal)
-        self.trace_list.append(node)

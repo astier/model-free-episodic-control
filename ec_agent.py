@@ -7,7 +7,6 @@ import os
 import logging
 import numpy as np
 import cPickle
-import ec_functions
 
 
 class EpisodicControl(object):
@@ -22,7 +21,7 @@ class EpisodicControl(object):
         self.epsilon_min = epsilon_min
         self.epsilon_decay = epsilon_decay
         self.rng = rng
-        self.trace_list = ec_functions.TraceRecorder()
+        self.traces = []
         self.epsilon = self.epsilon_start
         self.exp_pref = "results/" + os.path.splitext(
             os.path.basename(rom))[0]
@@ -79,16 +78,16 @@ class EpisodicControl(object):
         """
         self.step_counter = 0
         self.episode_reward = 0
-        self.trace_list.trace_list = []
+        self.traces = []
         self.start_time = time.time()
         return_action = self.rng.randint(0, self.num_actions)
         self.last_action = return_action
         self.last_img = observation
         return return_action
 
-    def _choose_action(self, trace_list, qec_table, epsilon, observation,
+    def _choose_action(self, qec_table, epsilon, observation,
                        reward):
-        trace_list.add_trace(self.last_img, self.last_action, reward, False)
+        self.add_trace(self.last_img, self.last_action, reward, False)
 
         # Epsilon greedy approach chooses random action for exploration
         if self.rng.rand() < epsilon:
@@ -118,7 +117,7 @@ class EpisodicControl(object):
         self.step_counter += 1
         self.episode_reward += reward
         self.epsilon = max(self.epsilon_min, self.epsilon - self.epsilon_rate)
-        action = self._choose_action(self.trace_list, self.qec_table,
+        action = self._choose_action(self.qec_table,
                                      self.epsilon, observation,
                                      np.clip(reward, -1, 1))
         self.last_action = action
@@ -140,14 +139,15 @@ class EpisodicControl(object):
         total_time = time.time() - self.start_time
 
         # Store the latest sample.
-        self.trace_list.add_trace(self.last_img, self.last_action,
-                                  np.clip(reward, -1, 1), True)
+        self.add_trace(self.last_img, self.last_action,
+                       np.clip(reward, -1, 1), terminal)
         # Do update
         q_return = 0.
-        for i in range(len(self.trace_list.trace_list) - 1, -1, -1):
-            node = self.trace_list.trace_list[i]
-            q_return = q_return * self.ec_discount + node.reward
-            self.qec_table.update(node.image, node.action, q_return)
+        for i in range(len(self.traces) - 1, -1, -1):
+            trace = self.traces[i]
+            q_return = q_return * self.ec_discount + trace['reward']
+            self.qec_table.update(trace['observation'], trace['action'],
+                                  q_return)
 
         # calculate time
         rho = 0.98
@@ -177,3 +177,8 @@ class EpisodicControl(object):
         self.total_reward = 0
 
         # EC_functions.print_table(self.qec_table)
+
+    def add_trace(self, observation, action, reward, terminal=True):
+        self.traces.append(
+            {'observation': observation, 'action': action, 'reward': reward,
+             'terminal': terminal})
