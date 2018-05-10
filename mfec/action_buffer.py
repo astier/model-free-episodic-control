@@ -6,9 +6,9 @@ from sklearn.neighbors import KDTree
 
 class ActionBuffer(object):
 
-    def __init__(self, capacity, dimension_result):
+    def __init__(self, capacity, projection_dimension):
         self.capacity = capacity
-        self.states = np.zeros((capacity, dimension_result))
+        self.states = np.zeros((capacity, projection_dimension))
         self.q_values = np.zeros(capacity)
         self.lru = np.zeros(capacity)
         self.curr_capacity = 0

@@ -21,7 +21,7 @@ REPEAT_ACTION_PROBABILITY = 0
 KNN = 11
 DISCOUNT = 1.0
 BUFFER_SIZE = 100000  # 1000000
-EPSILON_START = 1.0
+EPSILON = 1.0
 EPSILON_MIN = .005
 EPSILON_DECAY = 10000
 RESIZE_METHOD = 'scale'
@@ -58,7 +58,7 @@ def setup_environment(rng):  # TODO ale vs gym
 
 def setup_agent(num_actions, rng):
     return EpisodicControl(load_qec_table(num_actions, rng), DISCOUNT,
-                           num_actions, EPSILON_START, EPSILON_MIN,
+                           num_actions, EPSILON, EPSILON_MIN,
                            EPSILON_DECAY, ROM, rng)
 
 
