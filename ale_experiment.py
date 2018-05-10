@@ -4,7 +4,7 @@ __author__ = 'Nathan Sprague'
 
 import logging
 import numpy as np
-import image_preprocessing
+import scipy.misc
 
 # Number of rows to crop off the bottom of the (downsampled) screen.
 # This is appropriate for breakout, but it may need to be modified
@@ -163,7 +163,7 @@ class ALEExperiment(object):
             resize_height = int(round(
                 float(self.height) * self.resized_width / self.width))
 
-            resized = image_preprocessing.resize(image, (
+            resized = self.resize(image, (
                 self.resized_width, resize_height))
 
             # Crop the part we want
@@ -173,7 +173,10 @@ class ALEExperiment(object):
             return cropped
 
         elif self.resize_method == 'scale':
-            return image_preprocessing.resize(image, (
+            return self.resize(image, (
                 self.resized_width, self.resized_height))
         else:
             raise ValueError('Unrecognized image resize method.')
+
+    def resize(self, image, size):
+        return scipy.misc.imresize(image, size=size)
