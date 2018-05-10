@@ -4,7 +4,8 @@ import numpy as np
 from sklearn.neighbors import KDTree
 
 
-class KNN(object):
+class ActionBuffer(object):
+
     def __init__(self, capacity, dimension_result):
         self.capacity = capacity
         self.states = np.zeros((capacity, dimension_result))

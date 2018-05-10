@@ -2,45 +2,25 @@
 
 import numpy as np
 
-from knn import KNN
+from action_buffer import ActionBuffer
 
 
 class QEC(object):
-    def __init__(self, knn, state_dimension, projection_type,
-                 observation_dimension, buffer_size, num_actions, rng):
+
+    def __init__(self, knn, projection_dimension,
+                 state_dimension, buffer_size, num_actions, rng):
         self.knn = knn
-        self.ec_buffer = []
-        self.buffer_maximum_size = buffer_size
         self.rng = rng
-        for i in range(num_actions):
-            self.ec_buffer.append(KNN(buffer_size, state_dimension))
-
-        # I tried to make a function self.projection(state)
-        # but cPickle can not pickle an object that has an function attribute
-        self._initialize_projection_function(state_dimension,
-                                             observation_dimension,
-                                             projection_type)
-
-    def _initialize_projection_function(self, dimension_result,
-                                        dimension_observation, p_type):
-        if p_type == 'random':
-            self.matrix_projection = self.rng.randn(dimension_result,
-                                                    dimension_observation) \
-                .astype(np.float32)
-        elif p_type == 'VAE':
-            pass
-        else:
-            raise ValueError('unrecognized projection type')
+        self.buffers = [ActionBuffer(buffer_size, projection_dimension)
+                        for _ in range(num_actions)]
+        # TODO Gauss and others?
+        self.projection = rng.randn(projection_dimension, state_dimension) \
+            .astype(np.float32)
 
     def estimate(self, s, a):
-        """Determine Q(s,a).
-
-        First search in the QEC-table if an entry already exists (O(N)).
-        Otherwise estimate by KNN (O(N*D*logK)).
-        """
-        state = np.dot(self.matrix_projection, s.flatten())
-        action_buffer = self.ec_buffer[a]
-        q_value = action_buffer.peek(state, None, modify=False)
+        state = np.dot(self.projection, s.flatten())
+        a_buffer = self.buffers[a]
+        q_value = a_buffer.peek(state, None, modify=False)
         if q_value is not None:
             return q_value
         # If the number of elements in the action-buffer is smaller than k
@@ -50,14 +30,14 @@ class QEC(object):
         # because it needs at least k elements as neighbors.
         # TODO: Consider implementing as -inf or filling up action-buffers
         # randomly before anything else
-        elif action_buffer.curr_capacity < self.knn:
+        elif a_buffer.curr_capacity < self.knn:
             return float('inf')
 
-        return action_buffer.knn_value(state, self.knn)
+        return a_buffer.knn_value(state, self.knn)
 
     def update(self, s, a, r):
         """s is 84*84*3;  a is 0 to num_actions; r is reward"""
-        state = np.dot(self.matrix_projection, s.flatten())
-        q_value = self.ec_buffer[a].peek(state, r, modify=True)
+        state = np.dot(self.projection, s.flatten())
+        q_value = self.buffers[a].peek(state, r, modify=True)
         if q_value is None:
-            self.ec_buffer[a].add(state, r)
+            self.buffers[a].add(state, r)

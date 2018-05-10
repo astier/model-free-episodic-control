@@ -21,14 +21,14 @@ REPEAT_ACTION_PROBABILITY = 0
 KNN = 11
 DISCOUNT = 1.0
 BUFFER_SIZE = 100000  # 1000000
-STATE_DIMENSION = 64
-PROJECTION_TYPE = 'random'  # or VAE
 EPSILON_START = 1.0
 EPSILON_MIN = .005
 EPSILON_DECAY = 10000
 RESIZE_METHOD = 'scale'
 RESIZED_WIDTH = 84
 RESIZED_HEIGHT = 84
+STATE_DIMENSION = RESIZED_HEIGHT * RESIZED_WIDTH
+PROJECTION_DIMENSION = 64
 DEATH_ENDS_EPISODE = True
 MAX_START_NULLOPS = 30
 DISPLAY_SCREEN = False
@@ -66,8 +66,8 @@ def setup_agent(num_actions, rng):
 def load_qec_table(num_actions, rng):
     if QEC_TABLE:
         return cPickle.load(open(QEC_TABLE, 'r'))
-    return QEC(KNN, STATE_DIMENSION, PROJECTION_TYPE,
-               RESIZED_WIDTH * RESIZED_HEIGHT, BUFFER_SIZE, num_actions, rng)
+    return QEC(KNN, PROJECTION_DIMENSION, STATE_DIMENSION, BUFFER_SIZE,
+               num_actions, rng)
 
 
 if __name__ == "__main__":

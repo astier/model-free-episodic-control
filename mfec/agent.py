@@ -8,7 +8,6 @@ import cPickle
 
 
 class EpisodicControl(object):
-    """Episodic Control Agent"""
 
     def __init__(self, qec_table, ec_discount, num_actions, epsilon_start,
                  epsilon_min, epsilon_decay, rom, rng):
