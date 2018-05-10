@@ -178,5 +178,6 @@ class ALEExperiment(object):
         else:
             raise ValueError('Unrecognized image resize method.')
 
-    def resize(self, image, size):
+    @staticmethod
+    def resize(image, size):
         return scipy.misc.imresize(image, size=size)

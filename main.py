@@ -1,6 +1,5 @@
 #! /usr/bin/env python2
 
-
 import cPickle
 import logging
 import os
@@ -8,9 +7,9 @@ import os
 import atari_py.ale_python_interface
 import numpy as np
 
-import ec_agent
-import ec_functions
+import agent
 import experiment
+import qec
 
 ROMS = "./roms/"
 ROM = 'qbert.bin'
@@ -64,18 +63,18 @@ def setup_environment(rng):
 
 def setup_agent(num_actions, rng):
     qec_table = load_qec_table(num_actions, rng)
-    return ec_agent.EpisodicControl(qec_table, DISCOUNT, num_actions,
-                                    EPSILON_START, EPSILON_MIN, EPSILON_DECAY,
-                                    ROM, rng)
+    return agent.EpisodicControl(qec_table, DISCOUNT, num_actions,
+                                 EPSILON_START, EPSILON_MIN, EPSILON_DECAY,
+                                 ROM, rng)
 
 
 # TODO cpickle vs json etc.
 def load_qec_table(num_actions, rng):
     if QEC_TABLE:
         return cPickle.load(open(QEC_TABLE, 'r'))
-    return ec_functions.QECTable(KNN, STATE_DIMENSION, PROJECTION_TYPE,
-                                 RESIZED_WIDTH * RESIZED_HEIGHT,
-                                 BUFFER_SIZE, num_actions, rng)
+    return qec.QEC(KNN, STATE_DIMENSION, PROJECTION_TYPE,
+                   RESIZED_WIDTH * RESIZED_HEIGHT,
+                   BUFFER_SIZE, num_actions, rng)
 
 
 if __name__ == "__main__":
