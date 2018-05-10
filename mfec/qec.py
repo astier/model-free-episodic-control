@@ -7,15 +7,15 @@ from action_buffer import ActionBuffer
 
 class QEC(object):
 
-    def __init__(self, knn, projection_dimension,
-                 state_dimension, buffer_size, num_actions, rng):
+    def __init__(self, knn, projection_dim, state_dim, buffer_size,
+                 num_actions, rng):
         self.knn = knn
         self.rng = rng
-        self.buffers = [ActionBuffer(buffer_size, projection_dimension)
+        self.buffers = [ActionBuffer(buffer_size, projection_dim)
                         for _ in range(num_actions)]
         # TODO Gauss and others?
-        self.projection = rng.randn(projection_dimension, state_dimension) \
-            .astype(np.float32)
+        self.projection = rng.randn(projection_dim, state_dim).astype(
+            np.float32)
 
     def estimate(self, s, a):
         state = np.dot(self.projection, s.flatten())

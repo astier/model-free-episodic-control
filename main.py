@@ -9,7 +9,7 @@ from atari_py.ale_python_interface import ALEInterface
 
 from mfec.qec import QEC
 from mfec.agent import EpisodicControl
-from mfec.experiment import ALEExperiment
+from mfec.experiment import Experiment
 
 ROMS = "./roms/"
 ROM = 'qbert.bin'
@@ -39,21 +39,20 @@ SEED = 1
 def main():
     logging.basicConfig(level=logging.INFO)
     rng = np.random.RandomState(seed=SEED)  # TODO rng necessary?
-    environment = setup_environment(rng)
-    agent = setup_agent(len(environment.getMinimalActionSet()), rng)
-    ALEExperiment(environment, agent, RESIZED_WIDTH, RESIZED_HEIGHT,
-                  RESIZE_METHOD, EPOCHS, STEPS_PER_EPOCH, STEPS_PER_TEST,
-                  FRAME_SKIP, DEATH_ENDS_EPISODE, MAX_START_NULLOPS, rng).run()
+    env = setup_environment(rng)
+    agent = setup_agent(len(env.getMinimalActionSet()), rng)
+    Experiment(env, agent, RESIZED_WIDTH, RESIZED_HEIGHT, RESIZE_METHOD,
+               EPOCHS, STEPS_PER_EPOCH, STEPS_PER_TEST, FRAME_SKIP,
+               DEATH_ENDS_EPISODE, MAX_START_NULLOPS, rng).run()
 
 
 def setup_environment(rng):  # TODO ale vs gym
-    environment = ALEInterface()
-    environment.setInt('random_seed', rng.randint(1000))
-    environment.setBool('display_screen', DISPLAY_SCREEN)
-    environment.loadROM(os.path.join(ROMS, ROM))
-    environment.setFloat('repeat_action_probability',
-                         REPEAT_ACTION_PROBABILITY)
-    return environment
+    env = ALEInterface()
+    env.setInt('random_seed', rng.randint(1000))
+    env.setBool('display_screen', DISPLAY_SCREEN)
+    env.loadROM(os.path.join(ROMS, ROM))
+    env.setFloat('repeat_action_probability', REPEAT_ACTION_PROBABILITY)
+    return env
 
 
 def setup_agent(num_actions, rng):

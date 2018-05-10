@@ -10,42 +10,35 @@ import scipy.misc
 CROP_OFFSET = 8
 
 
-class ALEExperiment(object):
+class Experiment(object):
     """Implements the logic for training an agent in the Arcade Learning
-    Environment.
-    """
+    Environment."""
 
-    def __init__(self, ale, agent, resized_width, resized_height,
+    def __init__(self, env, agent, resized_width, resized_height,
                  resize_method, num_epochs, epoch_length, test_length,
                  frame_skip, death_ends_episode, max_start_nullops, rng):
-        self.ale = ale
+        self.ale = env
         self.agent = agent
         self.num_epochs = num_epochs
         self.epoch_length = epoch_length
         self.test_length = test_length
         self.frame_skip = frame_skip
         self.death_ends_episode = death_ends_episode
-        self.min_action_set = ale.getMinimalActionSet()
+        self.actions = env.getMinimalActionSet()
         self.resized_width = resized_width
         self.resized_height = resized_height
         self.resize_method = resize_method
-        self.width, self.height = ale.getScreenDims()
-
+        self.width, self.height = env.getScreenDims()
         self.buffer_length = 2
         self.buffer_count = 0
-        self.screen_buffer = np.empty((self.buffer_length,
-                                       self.height, self.width),
-                                      dtype=np.uint8)
-
-        self.terminal_lol = False  # Most recent episode ended on a loss of
-        # life
+        self.screen_buffer = np.empty(
+            (self.buffer_length, self.height, self.width), dtype=np.uint8)
+        self.terminal_lol = False  # Last episode ended because agent died
         self.max_start_nullops = max_start_nullops
         self.rng = rng
 
     def run(self):
-        """Run the desired number of training epochs, a testing epoch
-        is conducted after each training epoch.
-        """
+        """Train and test the agent for a defined number of epochs."""
         for epoch in range(1, self.num_epochs + 1):
             self.run_epoch(epoch, self.epoch_length)
             self.agent.finish_epoch(epoch)
@@ -133,7 +126,7 @@ class ALEExperiment(object):
         action = self.agent.start_episode(self.get_observation())
         num_steps = 0
         while True:
-            reward = self._step(self.min_action_set[action])
+            reward = self._step(self.actions[action])
             self.terminal_lol = (self.death_ends_episode and not testing and
                                  self.ale.lives() < start_lives)
             terminal = self.ale.game_over() or self.terminal_lol

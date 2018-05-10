@@ -40,7 +40,7 @@ class EpisodicControl(object):
     @staticmethod
     def create_result_dir(rom):
         rom_name = rom.split('.')[0]
-        execution_time = time.strftime("_%m-%d-%H-%M-%S_", time.gmtime())
+        execution_time = time.strftime("_%m-%d-%H-%M-%S", time.gmtime())
         result_dir = 'results/' + rom_name + execution_time
         if not os.path.exists(result_dir):
             os.makedirs(result_dir)
