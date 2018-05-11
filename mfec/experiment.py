@@ -46,7 +46,8 @@ class Experiment(object):
         reward = None
 
         while not game_over and steps < max_steps:
-            reward = self.step(self.actions[action])
+            reward = sum(self.act(self.actions[action]) for _ in
+                         range(self.frame_skip))
             self.death = (self.death_ends_episode and
                           self.ale.lives() < start_lives)
             game_over = self.ale.game_over() or self.death
@@ -79,10 +80,3 @@ class Experiment(object):
                            self.screen_buffer[index - 1, ...])
         rescale_size = (self.resize_width, self.resize_height)
         return scipy.misc.imresize(image, size=rescale_size)
-
-    def step(self, action):
-        """ Repeat an action for a defined number of frames."""
-        reward = 0
-        for _ in range(self.frame_skip):
-            reward += self.act(action)
-        return reward

@@ -7,9 +7,9 @@ import os
 import numpy as np
 from atari_py.ale_python_interface import ALEInterface
 
-from mfec.qec import QEC
 from mfec.agent import EpisodicControl
 from mfec.experiment import Experiment
+from mfec.qec import QEC
 
 # TODO parameters as json-config
 ROMS = "./roms/"
@@ -34,7 +34,7 @@ QEC_TABLE = ''
 SEED = 1
 
 
-def main():
+def main():  # TODO merge with experiment.py
     logging.basicConfig(level=logging.INFO)
     ale = setup_ale()
     actions = len(ale.getMinimalActionSet())

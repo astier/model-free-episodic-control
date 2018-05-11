@@ -23,8 +23,8 @@ class QEC(object):
         # gets explored, otherwise an estimation by the knn-algorithm
         # can not be performed and throws an exception,
         # because it needs at least k elements as neighbors.
-        # TODO: Consider implementing as -inf or filling up action-buffers
-        # randomly before anything else
+        # TODO Consider implementing as -inf or filling up action-buffers
+        # TODO randomly before anything else
         elif a_buffer.curr_capacity < self.knn:
             return float('inf')
 
