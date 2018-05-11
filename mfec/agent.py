@@ -1,4 +1,4 @@
-#! /usr/bin/env python2
+#! /usr/bin/ale python2
 
 import time
 import os
@@ -49,7 +49,7 @@ class EpisodicControl(object):
     def create_result_file(self):
         logging.info("OPENING " + self.result_dir + '/results.csv')
         result_file = open(self.result_dir + '/results.csv', 'w')
-        result_file.write('epoch, episode_num, total_reward, avg_reward\n')
+        result_file.write('epoch, episodes, reward_sum, reward_avg\n')
         result_file.flush()
         return result_file
 

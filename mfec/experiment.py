@@ -1,4 +1,4 @@
-#! /usr/bin/env python2
+#! /usr/bin/ale python2
 
 import logging
 import numpy as np
@@ -11,133 +11,79 @@ CROP_OFFSET = 8
 
 
 class Experiment(object):
-    """Implements the logic for training an agent in the Arcade Learning
-    Environment."""
 
-    def __init__(self, env, agent, resized_width, resized_height,
-                 resize_method, num_epochs, epoch_length, test_length,
-                 frame_skip, death_ends_episode, max_start_nullops, rng):
-        self.ale = env
+    def __init__(self, ale, agent, resized_width, resized_height,
+                 resize_method, epochs, steps_per_epoch, frame_skip,
+                 death_ends_episode, max_nullops, rng):
+        self.ale = ale
         self.agent = agent
-        self.num_epochs = num_epochs
-        self.epoch_length = epoch_length
-        self.test_length = test_length
+        self.epochs = epochs
+        self.steps_per_epoch = steps_per_epoch
         self.frame_skip = frame_skip
         self.death_ends_episode = death_ends_episode
-        self.actions = env.getMinimalActionSet()
+        self.actions = ale.getMinimalActionSet()
         self.resized_width = resized_width
         self.resized_height = resized_height
         self.resize_method = resize_method
-        self.width, self.height = env.getScreenDims()
+        self.width, self.height = ale.getScreenDims()
         self.buffer_length = 2
         self.buffer_count = 0
         self.screen_buffer = np.empty(
             (self.buffer_length, self.height, self.width), dtype=np.uint8)
-        self.terminal_lol = False  # Last episode ended because agent died
-        self.max_start_nullops = max_start_nullops
+        self.death = False  # Last episode ended because agent died
+        self.max_nullops = max_nullops
         self.rng = rng
 
     def run(self):
-        """Train and test the agent for a defined number of epochs."""
-        for epoch in range(1, self.num_epochs + 1):
-            self.run_epoch(epoch, self.epoch_length)
+        for epoch in range(1, self.epochs + 1):
+            self.run_epoch(epoch, self.steps_per_epoch)
             self.agent.finish_epoch(epoch)
 
-            if self.test_length > 0:
-                self.agent.start_testing()
-                self.run_epoch(epoch, self.test_length, True)
-                self.agent.finish_testing(epoch)
+    def run_epoch(self, epoch, steps):
+        self.death = False  # Make sure each epoch starts with a reset.
+        while steps > 0:
+            logging.info("Epoch: {}\tSteps Left: {}".format(epoch, steps))
+            steps -= self.run_episode(steps)
 
-    def run_epoch(self, epoch, num_steps, testing=False):
-        """ Run one 'epoch' of training or testing, where an epoch is defined
-        by the number of steps executed.  Prints a progress report after
-        every trial.
-
-        Arguments:
-        epoch - the current epoch number
-        num_steps - steps per epoch
-        testing - True if this Epoch is used for testing and not training
-        """
-        self.terminal_lol = False  # Make sure each epoch starts with a reset.
-        steps_left = num_steps
-        while steps_left > 0:
-            prefix = "testing" if testing else "training"
-            logging.info(prefix + " epoch: " + str(epoch) + " steps_left: " +
-                         str(steps_left))
-            _, num_steps = self.run_episode(steps_left, testing)
-
-            steps_left -= num_steps
-
-    def _init_episode(self):
-        """ This method resets the game if needed, performs enough null
-        actions to ensure that the screen buffer is ready and optionally
-        performs a randomly determined number of null action to randomize
-        the initial game state.
-        """
-        if not self.terminal_lol or self.ale.game_over():
-            self.ale.reset_game()
-
-            if self.max_start_nullops > 0:
-                random_actions = self.rng.randint(0,
-                                                  self.max_start_nullops + 1)
-                for _ in range(random_actions):
-                    self._act(0)  # Null action
-
-        # Make sure the screen buffer is filled at the beginning of
-        # each episode...
-        self._act(0)
-        self._act(0)
-
-    def _act(self, action):
-        """Perform the indicated action for a single frame, return the
-        resulting reward and store the resulting screen image in the
-        buffer.
-        """
-        reward = self.ale.act(action)
-        index = self.buffer_count % self.buffer_length
-
-        self.ale.getScreenGrayscale(self.screen_buffer[index, ...])
-
-        self.buffer_count += 1
-        return reward
-
-    def _step(self, action):
-        """ Repeat one action the appropriate number of times and return
-        the summed reward.
-        """
-        reward = 0
-        for _ in range(self.frame_skip):
-            reward += self._act(action)
-
-        return reward
-
-    def run_episode(self, max_steps, testing):
-        """Run a single training episode.
-
-        The boolean terminal value returned indicates whether the
-        episode ended because the game ended or the agent died (True)
-        or because the maximum number of steps was reached (False).
-        Currently this value will be ignored.
-
-        Return: (terminal, num_steps)
-        """
-        self._init_episode()
+    def run_episode(self, max_steps):
+        self.init_episode()
         start_lives = self.ale.lives()
         action = self.agent.start_episode(self.get_observation())
-        num_steps = 0
-        while True:
-            reward = self._step(self.actions[action])
-            self.terminal_lol = (self.death_ends_episode and not testing and
-                                 self.ale.lives() < start_lives)
-            terminal = self.ale.game_over() or self.terminal_lol
-            num_steps += 1
+        steps = 0
+        game_over = False
+        reward = None
 
-            if terminal or num_steps >= max_steps:
-                self.agent.end_episode(reward, terminal)
-                break
-
+        while not game_over and steps < max_steps:
+            reward = self.step(self.actions[action])
+            self.death = (self.death_ends_episode and
+                          self.ale.lives() < start_lives)
+            game_over = self.ale.game_over() or self.death
             action = self.agent.step(reward, self.get_observation())
-        return terminal, num_steps
+            steps += 1
+
+        self.agent.end_episode(reward, game_over)
+        return steps
+
+    def init_episode(self):
+        """Reset the game and perform null actions to fill the frame-buffer."""
+        if not self.death or self.ale.game_over():
+            self.ale.reset_game()
+
+            if self.max_nullops > 0:
+                random_actions = self.rng.randint(0, self.max_nullops + 1)
+                for _ in range(random_actions):
+                    self.act(0)  # Null action
+
+        self.act(0)
+        self.act(0)
+
+    def act(self, action):
+        """Perform an action for a single frame and store the frame."""
+        reward = self.ale.act(action)
+        index = self.buffer_count % self.buffer_length
+        self.ale.getScreenGrayscale(self.screen_buffer[index, ...])
+        self.buffer_count += 1
+        return reward
 
     def get_observation(self):
         """ Resize and merge the previous two screen images."""
@@ -147,8 +93,14 @@ class Experiment(object):
                                self.screen_buffer[index - 1, ...])
         return self.resize_image(max_image)
 
+    def step(self, action):
+        """ Repeat an action for a defined number of frames."""
+        reward = 0
+        for _ in range(self.frame_skip):
+            reward += self.act(action)
+        return reward
+
     def resize_image(self, image):
-        """ Appropriately resize a single image."""
         if self.resize_method == 'crop':
             # resize keeping aspect ratio
             resize_height = int(round(

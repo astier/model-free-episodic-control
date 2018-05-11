@@ -1,1 +1,1 @@
-#! /usr/bin/env python2
+#! /usr/bin/ale python2

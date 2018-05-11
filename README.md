@@ -8,10 +8,11 @@ algorithm. This is a fork of the repository from
 whereas his work is a fork of the original work from
 **[ShibiHe](https://github.com/ShibiHe/Model-Free-Episodic-Control)**.
 
-The contributions of this project so far are:
-- Heavy Refactoring
-- Leaner & cleaner code
+Work is still in progress. The contributions of this project so far are:
 - Bugfix
+- Leaner, cleaner & simpler code
+- Better project structure
+- Heavy Refactoring
 
 ## Requirements
 - Python 2
