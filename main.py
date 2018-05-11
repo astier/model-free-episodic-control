@@ -24,7 +24,6 @@ BUFFER_SIZE = 1000000  # 1000000
 EPSILON = 1.0
 EPSILON_MIN = .005
 EPSILON_DECAY = 10000
-RESIZE_METHOD = 'scale'  # TODO whats that?
 RESIZE_WIDTH = 84
 RESIZE_HEIGHT = 84
 STATE_DIM = RESIZE_HEIGHT * RESIZE_WIDTH
@@ -43,7 +42,7 @@ def main():
     qec = load_qec_table(actions, rng)
     agent = EpisodicControl(qec, DISCOUNT, actions, EPSILON, EPSILON_MIN,
                             EPSILON_DECAY, ROM, rng)
-    Experiment(ale, agent, RESIZE_WIDTH, RESIZE_HEIGHT, RESIZE_METHOD, EPOCHS,
+    Experiment(ale, agent, RESIZE_WIDTH, RESIZE_HEIGHT, EPOCHS,
                STEPS_PER_EPOCH, FRAME_SKIP, DEATH_ENDS_EPISODE, rng).run()
 
 

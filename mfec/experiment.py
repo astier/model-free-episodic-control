@@ -4,17 +4,11 @@ import logging
 import numpy as np
 import scipy.misc
 
-# Number of rows to crop off the bottom of the (downsampled) screen.
-# This is appropriate for breakout, but it may need to be modified
-# for other games.
-CROP_OFFSET = 8
-
 
 class Experiment(object):
 
-    def __init__(self, ale, agent, resize_width, resize_height,
-                 resize_method, epochs, steps_per_epoch, frame_skip,
-                 death_ends_episode, rng):
+    def __init__(self, ale, agent, resize_width, resize_height, epochs,
+                 steps_per_epoch, frame_skip, death_ends_episode, rng):
         self.ale = ale
         self.agent = agent
         self.epochs = epochs
@@ -24,7 +18,6 @@ class Experiment(object):
         self.actions = ale.getMinimalActionSet()
         self.resize_width = resize_width
         self.resize_height = resize_height
-        self.resize_method = resize_method
         self.width, self.height = ale.getScreenDims()
         self.buffer_length = 2
         self.buffer_count = 0
@@ -82,9 +75,10 @@ class Experiment(object):
         """ Resize and merge the previous two screen images."""
         assert self.buffer_count >= 2
         index = self.buffer_count % self.buffer_length - 1
-        max_image = np.maximum(self.screen_buffer[index, ...],
-                               self.screen_buffer[index - 1, ...])
-        return self.resize_image(max_image)
+        image = np.maximum(self.screen_buffer[index, ...],
+                           self.screen_buffer[index - 1, ...])
+        rescale_size = (self.resize_width, self.resize_height)
+        return scipy.misc.imresize(image, size=rescale_size)
 
     def step(self, action):
         """ Repeat an action for a defined number of frames."""
@@ -92,24 +86,3 @@ class Experiment(object):
         for _ in range(self.frame_skip):
             reward += self.act(action)
         return reward
-
-    def resize_image(self, image):
-        if self.resize_method == 'crop':
-            # resize keeping aspect ratio
-            resize_height = int(
-                round(float(self.height) * self.resize_width / self.width))
-            resized = self.resize(image, (self.resize_width, resize_height))
-            # Crop the part we want
-            crop_y_cutoff = resize_height - CROP_OFFSET - self.resize_height
-            cropped = resized[
-                      crop_y_cutoff: crop_y_cutoff + self.resize_height, :]
-            return cropped
-
-        elif self.resize_method == 'scale':
-            return self.resize(image, (self.resize_width, self.resize_height))
-        else:
-            raise ValueError('Unrecognized image resize method.')
-
-    @staticmethod
-    def resize(image, size):
-        return scipy.misc.imresize(image, size=size)
