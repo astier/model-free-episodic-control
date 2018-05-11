@@ -8,7 +8,7 @@ import scipy.misc
 class Experiment(object):
 
     def __init__(self, ale, agent, resize_width, resize_height, epochs,
-                 steps_per_epoch, frame_skip, death_ends_episode, rng):
+                 steps_per_epoch, frame_skip, death_ends_episode):
         self.ale = ale
         self.agent = agent
         self.epochs = epochs
@@ -19,12 +19,10 @@ class Experiment(object):
         self.resize_width = resize_width
         self.resize_height = resize_height
         self.width, self.height = ale.getScreenDims()
-        self.buffer_length = 2
-        self.buffer_count = 0
-        self.screen_buffer = np.empty(
-            (self.buffer_length, self.height, self.width), dtype=np.uint8)
+        self.frame_buffer = np.empty((2, self.height, self.width),
+                                     dtype=np.uint8)
+        self.buffer_count = 0  # TODO get rid of it somehow!
         self.death = False  # Last episode ended because agent died
-        self.rng = rng
 
     def run(self):
         for epoch in range(1, self.epochs + 1):
@@ -67,16 +65,16 @@ class Experiment(object):
     def act(self, action):
         """Perform an action for a single frame and store the frame."""
         reward = self.ale.act(action)
-        index = self.buffer_count % self.buffer_length
-        self.ale.getScreenGrayscale(self.screen_buffer[index, ...])
+        index = self.buffer_count % self.frame_buffer.shape[0]
+        self.ale.getScreenGrayscale(self.frame_buffer[index, ...])
         self.buffer_count += 1
         return reward
 
     def get_observation(self):
         """ Resize and merge the previous two screen images."""
         assert self.buffer_count >= 2
-        index = self.buffer_count % self.buffer_length - 1
-        image = np.maximum(self.screen_buffer[index, ...],
-                           self.screen_buffer[index - 1, ...])
+        index = self.buffer_count % self.frame_buffer.shape[0] - 1
+        image = np.maximum(self.frame_buffer[index, ...],
+                           self.frame_buffer[index - 1, ...])
         rescale_size = (self.resize_width, self.resize_height)
         return scipy.misc.imresize(image, size=rescale_size)

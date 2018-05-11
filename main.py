@@ -43,7 +43,7 @@ def main():  # TODO merge with experiment.py
     agent = EpisodicControl(qec, DISCOUNT, actions, EPSILON, EPSILON_MIN,
                             EPSILON_DECAY, ROM, rng)
     Experiment(ale, agent, RESIZE_WIDTH, RESIZE_HEIGHT, EPOCHS,
-               STEPS_PER_EPOCH, FRAME_SKIP, DEATH_ENDS_EPISODE, rng).run()
+               STEPS_PER_EPOCH, FRAME_SKIP, DEATH_ENDS_EPISODE).run()
 
 
 def setup_ale():  # TODO ale vs gym
