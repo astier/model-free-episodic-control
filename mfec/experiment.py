@@ -21,19 +21,17 @@ class Experiment(object):
         self.width, self.height = ale.getScreenDims()
         self.frame_buffer = np.empty((2, self.height, self.width),
                                      dtype=np.uint8)
-        self.buffer_count = 0  # TODO get rid of it somehow!
+        self.buffer_count = 0  # TODO get rid of this somehow!
         self.death = False  # Last episode ended because agent died
 
     def run(self):
         for epoch in range(1, self.epochs + 1):
-            self.run_epoch(epoch, self.steps_per_epoch)
+            self.death = False
+            steps_left = self.steps_per_epoch
+            while steps_left > 0:
+                logging.info("Epoch: {}\tSteps: {}".format(epoch, steps_left))
+                steps_left -= self.run_episode(steps_left)
             self.agent.finish_epoch(epoch)
-
-    def run_epoch(self, epoch, steps):
-        self.death = False  # Make sure each epoch starts with a reset.
-        while steps > 0:
-            logging.info("Epoch: {}\tSteps Left: {}".format(epoch, steps))
-            steps -= self.run_episode(steps)
 
     def run_episode(self, max_steps):
         self.init_episode()
