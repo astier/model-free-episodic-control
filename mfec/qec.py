@@ -1,4 +1,4 @@
-#! /usr/bin/ale python2
+#! /usr/bin/env python2
 
 import numpy as np
 from sklearn.neighbors.kd_tree import KDTree
