@@ -31,15 +31,21 @@ class Experiment(object):
             while steps_left > 0:
                 logging.info("Epoch: {}\tSteps: {}".format(epoch, steps_left))
                 steps_left -= self.run_episode(steps_left)
-            self.agent.finish_epoch(epoch)
+            self.agent.finish_epoch(epoch)  # TODO refactor to experiment
 
     def run_episode(self, max_steps):
-        self.init_episode()
+        if not self.death or self.ale.game_over():
+            self.ale.reset_game()
+
+        # TODO fill during initialization
+        for _ in range(self.frame_buffer.shape[0]):  # fill the frame-buffer
+            self.act(0)
+
         start_lives = self.ale.lives()
-        action = self.agent.start_episode(self.get_observation())
-        steps = 0
         game_over = False
         reward = None
+        action = self.agent.start_episode(self.get_observation())
+        steps = 0
 
         while not game_over and steps < max_steps:
             reward = sum(self.act(self.actions[action]) for _ in
@@ -52,13 +58,6 @@ class Experiment(object):
 
         self.agent.end_episode(reward, game_over)
         return steps
-
-    def init_episode(self):
-        """Reset the game and perform null actions to fill the frame-buffer."""
-        if not self.death or self.ale.game_over():
-            self.ale.reset_game()
-        self.act(0)
-        self.act(0)
 
     def act(self, action):
         """Perform an action for a single frame and store the frame."""

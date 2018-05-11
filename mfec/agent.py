@@ -152,17 +152,17 @@ class EpisodicControl(object):
              'terminal': terminal})
 
     def finish_epoch(self, epoch):
-        qec_file_prefix = self.result_dir + '/qec_table_file_'
+        qec_prefix = self.result_dir + '/qec_'
 
         # Save qec-table
-        qec_file = open(qec_file_prefix + str(epoch) + '.pkl', 'w')
-        cPickle.dump(self.qec, qec_file, 2)
-        qec_file.close()
+        qec = open(qec_prefix + str(epoch) + '.pkl', 'w')
+        cPickle.dump(self.qec, qec, 2)
+        qec.close()
 
         # Remove old qec-table to save storage space
-        qec_file_old = qec_file_prefix + str(epoch - 1) + '.pkl'
-        if os.path.isfile(qec_file_old):
-            os.remove(qec_file_old)
+        qec_old = qec_prefix + str(epoch - 1) + '.pkl'
+        if os.path.isfile(qec_old):
+            os.remove(qec_old)
 
         self.update_result_file(epoch, self.total_episodes, self.total_reward)
         self.total_episodes = 0
