@@ -63,7 +63,7 @@ class Experiment(object):
         """Perform an action for a single frame and store the frame."""
         reward = self.ale.act(action)
         index = self.buffer_count % self.frame_buffer.shape[0]
-        self.ale.getScreenGrayscale(self.frame_buffer[index, ...])
+        self.ale.getScreenGrayscale(self.frame_buffer[index])
         self.buffer_count += 1
         return reward
 
@@ -71,7 +71,7 @@ class Experiment(object):
         """ Resize and merge the previous two screen images."""
         assert self.buffer_count >= 2
         index = self.buffer_count % self.frame_buffer.shape[0] - 1
-        image = np.maximum(self.frame_buffer[index, ...],
-                           self.frame_buffer[index - 1, ...])
+        image = np.maximum(self.frame_buffer[index],
+                           self.frame_buffer[index - 1])
         rescale_size = (self.resize_width, self.resize_height)
         return scipy.misc.imresize(image, size=rescale_size)
