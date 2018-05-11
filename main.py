@@ -30,7 +30,6 @@ RESIZED_HEIGHT = 84
 STATE_DIM = RESIZED_HEIGHT * RESIZED_WIDTH
 PROJECTION_DIM = 64
 DEATH_ENDS_EPISODE = True
-MAX_NULLOPS = 30
 DISPLAY_SCREEN = False
 QEC_TABLE = ''
 SEED = 1
@@ -46,7 +45,7 @@ def main():
                             EPSILON_DECAY, ROM, rng)
     Experiment(ale, agent, RESIZED_WIDTH, RESIZED_HEIGHT, RESIZE_METHOD,
                EPOCHS, STEPS_PER_EPOCH, FRAME_SKIP, DEATH_ENDS_EPISODE,
-               MAX_NULLOPS, rng).run()
+               rng).run()
 
 
 def setup_ale():  # TODO ale vs gym

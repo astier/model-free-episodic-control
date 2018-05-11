@@ -14,7 +14,7 @@ class Experiment(object):
 
     def __init__(self, ale, agent, resized_width, resized_height,
                  resize_method, epochs, steps_per_epoch, frame_skip,
-                 death_ends_episode, max_nullops, rng):
+                 death_ends_episode, rng):
         self.ale = ale
         self.agent = agent
         self.epochs = epochs
@@ -31,7 +31,6 @@ class Experiment(object):
         self.screen_buffer = np.empty(
             (self.buffer_length, self.height, self.width), dtype=np.uint8)
         self.death = False  # Last episode ended because agent died
-        self.max_nullops = max_nullops
         self.rng = rng
 
     def run(self):
@@ -68,12 +67,6 @@ class Experiment(object):
         """Reset the game and perform null actions to fill the frame-buffer."""
         if not self.death or self.ale.game_over():
             self.ale.reset_game()
-
-            if self.max_nullops > 0:
-                random_actions = self.rng.randint(0, self.max_nullops + 1)
-                for _ in range(random_actions):
-                    self.act(0)  # Null action
-
         self.act(0)
         self.act(0)
 
