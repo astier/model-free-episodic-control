@@ -21,7 +21,7 @@ class Experiment(object):
         self.width, self.height = ale.getScreenDims()
         self.frame_buffer = np.empty((2, self.height, self.width),
                                      dtype=np.uint8)
-        self.buffer_count = 0  # TODO get rid of this somehow!
+        self.frame_count = 0  # TODO get rid of this somehow!
         self.death = False  # Last episode ended because agent died
 
     def run(self):
@@ -43,17 +43,18 @@ class Experiment(object):
 
         start_lives = self.ale.lives()
         game_over = False
-        reward = None
-        action = self.agent.start_episode(self.get_observation())
+        reward = 0
+        action = self.agent.start_episode(self.get_state())
         steps = 0
 
+        # TODO stick with game_over and terminal
         while not game_over and steps < max_steps:
             reward = sum(self.act(self.actions[action]) for _ in
                          range(self.frame_skip))
             self.death = (self.death_ends_episode and
                           self.ale.lives() < start_lives)
             game_over = self.ale.game_over() or self.death
-            action = self.agent.step(reward, self.get_observation())
+            action = self.agent.step(reward, self.get_state())
             steps += 1
 
         self.agent.end_episode(reward, game_over)
@@ -62,16 +63,17 @@ class Experiment(object):
     def act(self, action):
         """Perform an action for a single frame and store the frame."""
         reward = self.ale.act(action)
-        index = self.buffer_count % self.frame_buffer.shape[0]
+        index = self.frame_count % self.frame_buffer.shape[0]
         self.ale.getScreenGrayscale(self.frame_buffer[index])
-        self.buffer_count += 1
+        self.frame_count += 1
         return reward
 
-    def get_observation(self):
+    def get_state(self):
         """ Resize and merge the previous two screen images."""
-        assert self.buffer_count >= 2
-        index = self.buffer_count % self.frame_buffer.shape[0] - 1
-        image = np.maximum(self.frame_buffer[index],
+        # TODO why are two frames merged?
+        # TODO adapt to more than two frames
+        index = self.frame_count % self.frame_buffer.shape[0] - 1
+        frame = np.maximum(self.frame_buffer[index],
                            self.frame_buffer[index - 1])
         rescale_size = (self.resize_width, self.resize_height)
-        return scipy.misc.imresize(image, size=rescale_size)
+        return scipy.misc.imresize(frame, size=rescale_size)

@@ -28,7 +28,7 @@ RESIZE_WIDTH = 84
 RESIZE_HEIGHT = 84
 STATE_DIM = RESIZE_HEIGHT * RESIZE_WIDTH
 PROJECTION_DIM = 64
-DEATH_ENDS_EPISODE = True
+DEATH_ENDS_EPISODE = False
 DISPLAY_SCREEN = False
 QEC_TABLE = ''
 SEED = 1
@@ -50,8 +50,9 @@ def setup_ale():  # TODO ale vs gym
     ale = ALEInterface()
     ale.setInt('random_seed', SEED)
     ale.setBool('display_screen', DISPLAY_SCREEN)
-    ale.loadROM(os.path.join(ROMS, ROM))
     ale.setFloat('repeat_action_probability', REPEAT_ACTION_PROBABILITY)
+    ale.setBool('color_averaging', True)
+    ale.loadROM(os.path.join(ROMS, ROM))
     return ale
 
 

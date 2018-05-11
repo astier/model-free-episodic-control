@@ -27,7 +27,7 @@ class EpisodicControl(object):
         self.total_reward = 0.  # TODO float vs int
         self.total_episodes = 0
         self.start_time = None
-        self.observation = None
+        self.state = None
         self.action = None
         self.steps_sec_ema = 0.
 
@@ -53,13 +53,13 @@ class EpisodicControl(object):
         result_file.flush()
         return result_file
 
-    def start_episode(self, observation):
+    def start_episode(self, state):
         """This method is called once at the beginning of each episode.
         No reward is provided, because reward is only available after
         an action has been taken.
 
         Arguments:
-           observation - height x width numpy array
+           state - height x width numpy array
 
         Returns:
            An integer action
@@ -68,14 +68,22 @@ class EpisodicControl(object):
         self.episode_reward = 0
         self.traces = []
         self.start_time = time.time()
-        return_action = self.rng.randint(0, self.num_actions)
-        self.action = return_action
-        self.observation = observation
-        return return_action
+        self.action = self.rng.randint(0, self.num_actions)
+        self.state = state
+        return self.action
 
-    def _choose_action(self, qec_table, epsilon, observation,
-                       reward):
-        self.add_trace(self.observation, self.action, reward, False)
+    def step(self, reward, state):
+        self.step_counter += 1
+        self.episode_reward += reward
+        self.epsilon = max(self.epsilon_min, self.epsilon - self.epsilon_rate)
+        action = self.choose_action(self.qec, self.epsilon, state,
+                                    np.clip(reward, -1, 1))
+        self.action = action
+        self.state = state
+        return action
+
+    def choose_action(self, qec, epsilon, state, reward):
+        self.add_trace(self.state, self.action, reward, False)
 
         # Epsilon greedy approach chooses random action for exploration
         if self.rng.rand() < epsilon:
@@ -85,41 +93,14 @@ class EpisodicControl(object):
         best_value = float('-inf')
         best_action = None
         for action in range(self.num_actions):
-            value = qec_table.estimate(observation, action)
+            value = qec.estimate(state, action)
             if value > best_value:
                 best_value = value
                 best_action = action
 
         return best_action
 
-    def step(self, reward, observation):
-        """This method is called each time step.
-
-        Arguments:
-           reward      - Real valued reward.
-           observation - A height x width numpy array
-
-        Returns:
-           An integer action.
-        """
-        self.step_counter += 1
-        self.episode_reward += reward
-        self.epsilon = max(self.epsilon_min, self.epsilon - self.epsilon_rate)
-        action = self._choose_action(self.qec,
-                                     self.epsilon, observation,
-                                     np.clip(reward, -1, 1))
-        self.action = action
-        self.observation = observation
-        return action
-
-    def end_episode(self, reward, terminal=True):
-        """This function is called once at the end of an episode.
-
-        Arguments:
-           reward      - Real valued reward.
-           terminal    - Whether the episode ended intrinsically
-                         (ie we didn't run out of steps)
-        """
+    def end_episode(self, reward, death):
         self.episode_reward += reward
         self.total_reward += self.episode_reward
         self.total_episodes += 1
@@ -127,14 +108,13 @@ class EpisodicControl(object):
         total_time = time.time() - self.start_time
 
         # Store the latest sample.
-        self.add_trace(self.observation, self.action,
-                       np.clip(reward, -1, 1), terminal)
+        self.add_trace(self.state, self.action, np.clip(reward, -1, 1), death)
         # Do update
         q_return = 0.
         for i in range(len(self.traces) - 1, -1, -1):
             trace = self.traces[i]
             q_return = q_return * self.discount + trace['reward']
-            self.qec.update(trace['observation'], trace['action'],
+            self.qec.update(trace['state'], trace['action'],
                             q_return)
 
         # calculate time
@@ -148,7 +128,7 @@ class EpisodicControl(object):
 
     def add_trace(self, observation, action, reward, terminal=True):
         self.traces.append(
-            {'observation': observation, 'action': action, 'reward': reward,
+            {'state': observation, 'action': action, 'reward': reward,
              'terminal': terminal})
 
     def finish_epoch(self, epoch):
