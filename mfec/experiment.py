@@ -12,7 +12,7 @@ CROP_OFFSET = 8
 
 class Experiment(object):
 
-    def __init__(self, ale, agent, resized_width, resized_height,
+    def __init__(self, ale, agent, resize_width, resize_height,
                  resize_method, epochs, steps_per_epoch, frame_skip,
                  death_ends_episode, rng):
         self.ale = ale
@@ -22,8 +22,8 @@ class Experiment(object):
         self.frame_skip = frame_skip
         self.death_ends_episode = death_ends_episode
         self.actions = ale.getMinimalActionSet()
-        self.resized_width = resized_width
-        self.resized_height = resized_height
+        self.resize_width = resize_width
+        self.resize_height = resize_height
         self.resize_method = resize_method
         self.width, self.height = ale.getScreenDims()
         self.buffer_length = 2
@@ -96,21 +96,17 @@ class Experiment(object):
     def resize_image(self, image):
         if self.resize_method == 'crop':
             # resize keeping aspect ratio
-            resize_height = int(round(
-                float(self.height) * self.resized_width / self.width))
-
-            resized = self.resize(image, (
-                self.resized_width, resize_height))
-
+            resize_height = int(
+                round(float(self.height) * self.resize_width / self.width))
+            resized = self.resize(image, (self.resize_width, resize_height))
             # Crop the part we want
-            crop_y_cutoff = resize_height - CROP_OFFSET - self.resized_height
-            cropped = resized[crop_y_cutoff:
-                              crop_y_cutoff + self.resized_height, :]
+            crop_y_cutoff = resize_height - CROP_OFFSET - self.resize_height
+            cropped = resized[
+                      crop_y_cutoff: crop_y_cutoff + self.resize_height, :]
             return cropped
 
         elif self.resize_method == 'scale':
-            return self.resize(image, (
-                self.resized_width, self.resized_height))
+            return self.resize(image, (self.resize_width, self.resize_height))
         else:
             raise ValueError('Unrecognized image resize method.')
 

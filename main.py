@@ -25,9 +25,9 @@ EPSILON = 1.0
 EPSILON_MIN = .005
 EPSILON_DECAY = 10000
 RESIZE_METHOD = 'scale'  # TODO whats that?
-RESIZED_WIDTH = 84
-RESIZED_HEIGHT = 84
-STATE_DIM = RESIZED_HEIGHT * RESIZED_WIDTH
+RESIZE_WIDTH = 84
+RESIZE_HEIGHT = 84
+STATE_DIM = RESIZE_HEIGHT * RESIZE_WIDTH
 PROJECTION_DIM = 64
 DEATH_ENDS_EPISODE = True
 DISPLAY_SCREEN = False
@@ -43,9 +43,8 @@ def main():
     qec = load_qec_table(actions, rng)
     agent = EpisodicControl(qec, DISCOUNT, actions, EPSILON, EPSILON_MIN,
                             EPSILON_DECAY, ROM, rng)
-    Experiment(ale, agent, RESIZED_WIDTH, RESIZED_HEIGHT, RESIZE_METHOD,
-               EPOCHS, STEPS_PER_EPOCH, FRAME_SKIP, DEATH_ENDS_EPISODE,
-               rng).run()
+    Experiment(ale, agent, RESIZE_WIDTH, RESIZE_HEIGHT, RESIZE_METHOD, EPOCHS,
+               STEPS_PER_EPOCH, FRAME_SKIP, DEATH_ENDS_EPISODE, rng).run()
 
 
 def setup_ale():  # TODO ale vs gym
