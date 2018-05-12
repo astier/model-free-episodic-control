@@ -6,10 +6,10 @@ from sklearn.neighbors.kd_tree import KDTree
 
 class QEC(object):
 
-    def __init__(self, knn, buffer_size, num_actions, state_dimension):
+    def __init__(self, knn, buffer_size, actions, state_dimension):
         self.knn = knn
         self.buffers = [ActionBuffer(buffer_size, state_dimension)
-                        for _ in range(num_actions)]
+                        for _ in range(actions)]
 
     def estimate(self, state, action):
         a_buffer = self.buffers[action]
