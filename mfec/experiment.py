@@ -14,10 +14,8 @@ class Experiment(object):
         self.epochs = epochs
         self.steps_per_epoch = steps_per_epoch
         self.frame_skip = frame_skip
-        self.actions = ale.getMinimalActionSet()
         self.resize_width = resize_width
         self.resize_height = resize_height
-        self.width, self.height = ale.getScreenDims()
 
     def run(self):
         for epoch in range(1, self.epochs + 1):
@@ -26,25 +24,28 @@ class Experiment(object):
             while steps_left > 0:
                 logging.info("Epoch: {}\tSteps: {}".format(epoch, steps_left))
                 steps_left -= self.run_episode(steps_left)
-            self.agent.finish_epoch(epoch)  # TODO refactor to experiment
+            self.agent.end_epoch(epoch)  # TODO refactor to experiment
 
     def run_episode(self, max_steps):
-        reward = 0
-        action = self.agent.start_episode(self.projection())
+        total_reward = 0
         steps = 0
+        self.agent.start_episode()
 
         while not self.ale.game_over() and steps < max_steps:
-            reward = sum(self.ale.act(self.actions[action]) for _ in
-                         range(self.frame_skip))
-            action = self.agent.step(reward, self.projection())
+            observation = self.ale.getScreenGrayscale()[:, :, 0]
+            state = self.projection(observation)
+            action = self.agent.act(state)
+            reward = sum(
+                [self.ale.act(action) for _ in range(self.frame_skip)])
+            self.agent.add_experience(state, action, reward)
+            total_reward += reward
             steps += 1
 
         self.ale.reset_game()
-        self.agent.end_episode(reward)
+        self.agent.end_episode(total_reward)
         return steps
 
     # TODO projection should happen here!
-    def projection(self):
-        screen = self.ale.getScreenGrayscale()[:, :, 0]
+    def projection(self, observation):
         size = (self.resize_width, self.resize_height)
-        return scipy.misc.imresize(screen, size=size)
+        return scipy.misc.imresize(observation, size=size)

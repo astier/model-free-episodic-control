@@ -10,25 +10,24 @@ import cPickle
 # TODO Refactor result-creation
 class EpisodicControl(object):
 
-    def __init__(self, qec, discount, num_actions, epsilon,
+    def __init__(self, qec, discount, actions, epsilon,
                  epsilon_min, epsilon_decay, rom, rng):
         self.qec = qec
         self.discount = discount
-        self.num_actions = num_actions
+        self.actions = actions
         self.epsilon = epsilon
         self.epsilon_min = epsilon_min
-        self.rng = rng
-        self.traces = []
         self.epsilon_rate = self.compute_epsilon_rate(epsilon_decay)
+        self.rng = rng
+        self.memory = []
+
         self.result_dir = self.create_result_dir(rom)
         self.result_file = self.create_result_file()
         self.step_counter = 0
         self.episode_reward = 0
-        self.total_reward = 0.  # TODO float vs int
+        self.total_reward = 0
         self.total_episodes = 0
-        self.start_time = None
-        self.state = None
-        self.action = None
+        self.start_time = 0.
         self.steps_sec_ema = 0.
 
     def compute_epsilon_rate(self, epsilon_decay):
@@ -53,69 +52,46 @@ class EpisodicControl(object):
         result_file.flush()
         return result_file
 
-    def start_episode(self, state):
-        """This method is called once at the beginning of each episode.
-        No reward is provided, because reward is only available after
-        an action has been taken.
-
-        Arguments:
-           state - height x width numpy array
-
-        Returns:
-           An integer action
-        """
+    def start_episode(self):
         self.step_counter = 0
         self.episode_reward = 0
-        self.traces = []
+        self.memory = []
         self.start_time = time.time()
-        self.action = self.rng.randint(0, self.num_actions)
-        self.state = state
-        return self.action
 
-    def step(self, reward, state):
-        self.step_counter += 1
-        self.episode_reward += reward
+    def act(self, state):
+        # TODO generator
         self.epsilon = max(self.epsilon_min, self.epsilon - self.epsilon_rate)
-        action = self.choose_action(self.qec, self.epsilon, state,
-                                    np.clip(reward, -1, 1))
-        self.action = action
-        self.state = state
-        return action
+        if self.rng.rand() < self.epsilon:
+            return self.rng.randint(0, self.actions)
 
-    def choose_action(self, qec, epsilon, state, reward):
-        self.add_trace(self.state, self.action, reward)
-
-        # Epsilon greedy approach chooses random action for exploration
-        if self.rng.rand() < epsilon:
-            return self.rng.randint(0, self.num_actions)
-
-        # argmax(Q(s,a)) for exploitation
         best_value = float('-inf')
-        best_action = None
-        for action in range(self.num_actions):
-            value = qec.estimate(state, action)
+        best_action = 0
+        for action in range(self.actions):
+            value = self.qec.estimate(state, action)
             if value > best_value:
                 best_value = value
                 best_action = action
 
+        self.step_counter += 1
         return best_action
 
+    def add_experience(self, state, action, reward):
+        self.memory.append(
+            {'state': state, 'action': action, 'reward': reward})
+
     def end_episode(self, reward):
+        q_return = 0.
+        for i in range(len(self.memory) - 1, -1, -1):
+            experience = self.memory[i]
+            q_return = q_return * self.discount + experience['reward']
+            self.qec.update(experience['state'], experience['action'],
+                            q_return)
+
         self.episode_reward += reward
         self.total_reward += self.episode_reward
         self.total_episodes += 1
         self.step_counter += 1
         total_time = time.time() - self.start_time
-
-        # Store the latest sample.
-        self.add_trace(self.state, self.action, np.clip(reward, -1, 1))
-        # Do update
-        q_return = 0.
-        for i in range(len(self.traces) - 1, -1, -1):
-            trace = self.traces[i]
-            q_return = q_return * self.discount + trace['reward']
-            self.qec.update(trace['state'], trace['action'],
-                            q_return)
 
         # calculate time
         rho = 0.98
@@ -126,11 +102,7 @@ class EpisodicControl(object):
         logging.info('episode {} reward: {:.2f}'.format(self.total_episodes,
                                                         self.episode_reward))
 
-    def add_trace(self, observation, action, reward):
-        self.traces.append(
-            {'state': observation, 'action': action, 'reward': reward})
-
-    def finish_epoch(self, epoch):
+    def end_epoch(self, epoch):
         qec_prefix = self.result_dir + '/qec_'
 
         # Save qec-table
