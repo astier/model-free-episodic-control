@@ -1,27 +1,28 @@
 #! /usr/bin/env python2
 
-import cPickle  # TODO cpickle vs json etc.
 import logging
 import os
+import time
 
 import numpy as np
 import scipy.misc  # TODO other method than scipy?
 from atari_py.ale_python_interface import ALEInterface  # TODO ale vs gym
 
-from mfec.agent import EpisodicControl
+from mfec.agent import MFECAgent
 from mfec.qec import QEC
+from mfec.utils import Utils
 
 # TODO load parameters as json-config
-ROMS = "./roms/"
-ROM = 'qbert.bin'
-QEC_TABLE = ''
+ROM_FILE_NAME = 'qbert.bin'
+SAVE_QEC_TABLE = False
+QEC_TABLE_PATH = None
 
-TRAINING_FRAMES = 10000
-EPOCHS = 100
-FRAME_SKIP = 4
+EPOCHS = 5
+FRAMES_PER_EPOCH = 1000
+FRAMES_PER_ACTION = 4
 DISCOUNT = 1.0
 KNN = 11
-BUFFER_SIZE = 1000000  # 1000000
+ACTION_BUFFER_SIZE = 100000  # 1000000
 
 EPSILON = 1.0
 EPSILON_MIN = .005
@@ -32,17 +33,30 @@ SCALE_HEIGHT = 84
 STATE_DIMENSION = 64
 
 DISPLAY_SCREEN = False
-SEED = 1
+SEED = 42
 
 ale = None
 agent = None
+utils = None
 
 
-def init():
+# TODO define better dir-name
+def main():
+    np.random.seed(SEED)
     logging.basicConfig(level=logging.INFO)
+    setup_utils()
     setup_ale()
-    setup_agent(len(ale.getMinimalActionSet()))
-    train()
+    setup_agent()
+    run()
+
+
+def setup_utils():
+    global utils
+    execution_time = time.strftime("_%m-%d-%H-%M-%S", time.gmtime())
+    result_dir = ROM_FILE_NAME.split('.')[0] + execution_time
+    results_dir = os.path.join('results', result_dir)
+    os.makedirs(results_dir)
+    utils = Utils(results_dir)
 
 
 # TODO check more variables
@@ -53,30 +67,33 @@ def setup_ale():
     ale.setBool('display_screen', DISPLAY_SCREEN)  # TODO test this
     ale.setFloat('repeat_action_probability', 0.)  # DON'T TURN IT ON!
     ale.setBool('color_averaging', True)  # TODO compare to max
-    ale.loadROM(os.path.join(ROMS, ROM))
+    ale.loadROM(os.path.join('roms', ROM_FILE_NAME))
 
 
-def setup_agent(actions):
+def setup_agent():
     global agent
-    rng = np.random.RandomState(seed=SEED)  # TODO necessary?
-    if QEC_TABLE:
-        qec = cPickle.load(open(QEC_TABLE, 'r'))
+    actions = len(ale.getMinimalActionSet())
+    if QEC_TABLE_PATH:
+        qec = utils.load_agent(QEC_TABLE_PATH)
     else:
-        qec = QEC(KNN, BUFFER_SIZE, actions, STATE_DIMENSION)
+        qec = QEC(KNN, ACTION_BUFFER_SIZE, actions, STATE_DIMENSION)
+
     # TODO is this projection correct?
-    projection = rng.randn(STATE_DIMENSION,
-                           SCALE_HEIGHT * SCALE_WIDTH).astype(np.float32)
-    agent = EpisodicControl(qec, DISCOUNT, actions, EPSILON, EPSILON_MIN,
-                            EPSILON_DECAY, ROM, projection, rng)
+    projection = np.random.randn(STATE_DIMENSION,
+                                 SCALE_HEIGHT * SCALE_WIDTH).astype(np.float32)
+    agent = MFECAgent(qec, DISCOUNT, actions, EPSILON, EPSILON_MIN,
+                      EPSILON_DECAY, projection)
 
 
-def train():
+def run():
     for epoch in range(1, EPOCHS + 1):
-        frames_left = TRAINING_FRAMES
+        frames_left = FRAMES_PER_EPOCH
         while frames_left > 0:
             logging.info("Epoch: {}\tFrames: {}".format(epoch, frames_left))
             frames_left -= run_episode(frames_left)
-        agent.update_results(epoch)
+        utils.save_results(epoch)
+        if SAVE_QEC_TABLE:
+            utils.save_agent(epoch, agent)
 
 
 def run_episode(max_frames):
@@ -85,25 +102,24 @@ def run_episode(max_frames):
 
     # TODO terminal if dead?
     while not ale.game_over() and frames < max_frames:
-        # TODO observation should be the last 4 frames
+        # TODO observation should be the last 4 frames?
         observation = scale(ale.getScreenGrayscale()[:, :, 0])
         action = agent.act(observation)
-        reward = sum([ale.act(action) for _ in range(FRAME_SKIP)])
+        reward = sum([ale.act(action) for _ in range(FRAMES_PER_ACTION)])
         agent.receive_reward(reward)
         episode_reward += reward
-        frames += FRAME_SKIP
+        frames += FRAMES_PER_ACTION
 
     ale.reset_game()  # TODO what is it doing?
-    agent.train(episode_reward)
-    agent.reset()
+    agent.train()
+    utils.update_results(episode_reward)
     return frames
 
 
-# TODO refactor to agent?
 def scale(observation):
     size = (SCALE_WIDTH, SCALE_HEIGHT)
     return scipy.misc.imresize(observation, size=size)
 
 
 if __name__ == "__main__":
-    init()
+    main()
