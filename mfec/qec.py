@@ -6,15 +6,13 @@ from sklearn.neighbors.kd_tree import KDTree
 
 class QEC(object):
 
-    def __init__(self, knn, buffer_size, num_actions, projection):
+    def __init__(self, knn, buffer_size, num_actions, state_dimension):
         self.knn = knn
-        self.projection = projection
-        self.buffers = [ActionBuffer(buffer_size, projection.shape[0])
-                        for _ in range(1, num_actions + 1)]
+        self.buffers = [ActionBuffer(buffer_size, state_dimension)
+                        for _ in range(num_actions)]
 
-    def estimate(self, s, a):
-        state = np.dot(self.projection, s.flatten())
-        a_buffer = self.buffers[a]
+    def estimate(self, state, action):
+        a_buffer = self.buffers[action]
         q_value = a_buffer.peek(state, None, modify=False)
         if q_value is not None:
             return q_value
@@ -27,26 +25,23 @@ class QEC(object):
         # TODO randomly before anything else
         elif a_buffer.curr_capacity < self.knn:
             return float('inf')
-
         return a_buffer.knn_value(state, self.knn)
 
-    def update(self, s, a, r):
-        """s is 84*84*3;  a is 0 to num_actions; r is reward"""
-        state = np.dot(self.projection, s.flatten())
-        q_value = self.buffers[a].peek(state, r, modify=True)
+    def update(self, state, action, q_value):
+        q_value = self.buffers[action].peek(state, q_value, modify=True)
         if q_value is None:
-            self.buffers[a].add(state, r)
+            self.buffers[action].add(state, q_value)
 
 
 class ActionBuffer(object):
 
-    def __init__(self, capacity, projection_dim):
+    def __init__(self, capacity, state_dimension):
         self.capacity = capacity
-        self.states = np.zeros((capacity, projection_dim))
+        self.states = np.zeros((capacity, state_dimension))  # TODO vstack
         self.q_values = np.zeros(capacity)
         self.lru = np.zeros(capacity)
         self.curr_capacity = 0
-        self.tm = 0.0
+        self.tm = .0
         self.tree = None
 
     def peek(self, key, value, modify):
@@ -68,7 +63,7 @@ class ActionBuffer(object):
 
     def knn_value(self, key, knn):
         if self.curr_capacity == 0:
-            return 0.0
+            return .0
 
         # tree = KDTree(self.states[:self.curr_capacity])
         dist, ind = self.tree.query([key], k=knn)

@@ -1,35 +1,37 @@
 #! /usr/bin/env python2
 
-import cPickle
+import cPickle  # TODO cpickle vs json etc.
 import logging
 import os
 
 import numpy as np
-import scipy.misc
-from atari_py.ale_python_interface import ALEInterface
+import scipy.misc  # TODO other method than scipy?
+from atari_py.ale_python_interface import ALEInterface  # TODO ale vs gym
 
 from mfec.agent import EpisodicControl
 from mfec.qec import QEC
 
-# TODO parameters as json-config
+# TODO load parameters as json-config
 ROMS = "./roms/"
 ROM = 'qbert.bin'
-STEPS_PER_EPOCH = 5000  # 10000
-EPOCHS = 3  # 5000
+QEC_TABLE = ''
+
+TRAINING_FRAMES = 10000
+EPOCHS = 100
 FRAME_SKIP = 4
-REPEAT_ACTION_PROBABILITY = 0.
-KNN = 11
 DISCOUNT = 1.0
+KNN = 11
 BUFFER_SIZE = 1000000  # 1000000
+
 EPSILON = 1.0
 EPSILON_MIN = .005
 EPSILON_DECAY = 10000
-RESIZE_WIDTH = 84
-RESIZE_HEIGHT = 84
-STATE_DIM = RESIZE_HEIGHT * RESIZE_WIDTH
-PROJECTION_DIM = 64
+
+SCALE_WIDTH = 84
+SCALE_HEIGHT = 84
+STATE_DIMENSION = 64
+
 DISPLAY_SCREEN = False
-QEC_TABLE = ''
 SEED = 1
 
 ale = None
@@ -43,64 +45,63 @@ def init():
     train()
 
 
-def setup_ale():  # TODO ale vs gym
+# TODO check more variables
+def setup_ale():
     global ale
     ale = ALEInterface()
-    # TODO check more variables
     ale.setInt('random_seed', SEED)
-    ale.setBool('display_screen', DISPLAY_SCREEN)
-    ale.setFloat('repeat_action_probability', REPEAT_ACTION_PROBABILITY)
-    ale.setBool('color_averaging', True)
+    ale.setBool('display_screen', DISPLAY_SCREEN)  # TODO test this
+    ale.setFloat('repeat_action_probability', 0.)  # DON'T TURN IT ON!
+    ale.setBool('color_averaging', True)  # TODO compare to max
     ale.loadROM(os.path.join(ROMS, ROM))
 
 
-def setup_agent(actions):  # TODO cpickle vs json etc.
+def setup_agent(actions):
     global agent
-    rng = np.random.RandomState(seed=SEED)
+    rng = np.random.RandomState(seed=SEED)  # TODO necessary?
     if QEC_TABLE:
         qec = cPickle.load(open(QEC_TABLE, 'r'))
     else:
-        # TODO Gauss and others?
-        projection_matrix = rng.randn(PROJECTION_DIM, STATE_DIM).astype(
-            np.float32)
-        qec = QEC(KNN, BUFFER_SIZE, actions, projection_matrix)
+        qec = QEC(KNN, BUFFER_SIZE, actions, STATE_DIMENSION)
+    # TODO is this projection correct?
+    projection = rng.randn(STATE_DIMENSION,
+                           SCALE_HEIGHT * SCALE_WIDTH).astype(np.float32)
     agent = EpisodicControl(qec, DISCOUNT, actions, EPSILON, EPSILON_MIN,
-                            EPSILON_DECAY, ROM, rng)
+                            EPSILON_DECAY, ROM, projection, rng)
 
 
 def train():
     for epoch in range(1, EPOCHS + 1):
-        # TODO steps vs frames
-        steps_left = STEPS_PER_EPOCH
-        while steps_left > 0:
-            logging.info("Epoch: {}\tSteps: {}".format(epoch, steps_left))
-            steps_left -= run_episode(steps_left)
-        agent.end_epoch(epoch)
+        frames_left = TRAINING_FRAMES
+        while frames_left > 0:
+            logging.info("Epoch: {}\tFrames: {}".format(epoch, frames_left))
+            frames_left -= run_episode(frames_left)
+        agent.update_results(epoch)
 
 
-def run_episode(max_steps):
-    total_reward = 0
-    steps = 0
-    agent.start_episode()
+def run_episode(max_frames):
+    episode_reward = 0
+    frames = 0
 
-    while not ale.game_over() and steps < max_steps:
-        observation = ale.getScreenGrayscale()[:, :, 0]
-        state = projection(observation)
-        action = agent.act(state)
+    # TODO terminal if dead?
+    while not ale.game_over() and frames < max_frames:
+        # TODO observation should be the last 4 frames
+        observation = scale(ale.getScreenGrayscale()[:, :, 0])
+        action = agent.act(observation)
         reward = sum([ale.act(action) for _ in range(FRAME_SKIP)])
-        agent.add_experience(state, action, reward)
-        total_reward += reward
-        steps += 1
+        agent.receive_reward(reward)
+        episode_reward += reward
+        frames += FRAME_SKIP
 
-    ale.reset_game()
-    agent.end_episode(total_reward)
-    return steps
+    ale.reset_game()  # TODO what is it doing?
+    agent.train(episode_reward)
+    agent.reset()
+    return frames
 
 
-# TODO projection should happen here!
-def projection(observation):
-    size = (RESIZE_WIDTH, RESIZE_HEIGHT)
-    # TODO other method than scipy?
+# TODO refactor to agent?
+def scale(observation):
+    size = (SCALE_WIDTH, SCALE_HEIGHT)
     return scipy.misc.imresize(observation, size=size)
 
 
