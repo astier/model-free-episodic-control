@@ -14,13 +14,13 @@ from mfec.qec import QEC
 # TODO parameters as json-config
 ROMS = "./roms/"
 ROM = 'qbert.bin'
-STEPS_PER_EPOCH = 500  # 10000
+STEPS_PER_EPOCH = 5000  # 10000
 EPOCHS = 3  # 5000
 FRAME_SKIP = 4
-REPEAT_ACTION_PROBABILITY = 0
+REPEAT_ACTION_PROBABILITY = 0.
 KNN = 11
 DISCOUNT = 1.0
-BUFFER_SIZE = 100000  # 1000000
+BUFFER_SIZE = 1000000  # 1000000
 EPSILON = 1.0
 EPSILON_MIN = .005
 EPSILON_DECAY = 10000
@@ -36,17 +36,14 @@ SEED = 1
 def main():  # TODO merge with experiment.py
     logging.basicConfig(level=logging.INFO)
     ale = setup_ale()
-    actions = len(ale.getMinimalActionSet())
-    rng = np.random.RandomState(seed=SEED)
-    qec = load_qec_table(actions, rng)
-    agent = EpisodicControl(qec, DISCOUNT, actions, EPSILON, EPSILON_MIN,
-                            EPSILON_DECAY, ROM, rng)
+    agent = setup_agent(len(ale.getMinimalActionSet()))
     Experiment(ale, agent, RESIZE_WIDTH, RESIZE_HEIGHT, EPOCHS,
                STEPS_PER_EPOCH, FRAME_SKIP).run()
 
 
 def setup_ale():  # TODO ale vs gym
     ale = ALEInterface()
+    # TODO check more variables
     ale.setInt('random_seed', SEED)
     ale.setBool('display_screen', DISPLAY_SCREEN)
     ale.setFloat('repeat_action_probability', REPEAT_ACTION_PROBABILITY)
@@ -55,12 +52,17 @@ def setup_ale():  # TODO ale vs gym
     return ale
 
 
-def load_qec_table(actions, rng):  # TODO cpickle vs json etc.
+def setup_agent(actions):  # TODO cpickle vs json etc.
+    rng = np.random.RandomState(seed=SEED)
     if QEC_TABLE:
-        return cPickle.load(open(QEC_TABLE, 'r'))
-    # TODO Gauss and others?
-    projection = rng.randn(PROJECTION_DIM, STATE_DIM).astype(np.float32)
-    return QEC(KNN, BUFFER_SIZE, actions, projection)
+        qec = cPickle.load(open(QEC_TABLE, 'r'))
+    else:
+        # TODO Gauss and others?
+
+        projection = rng.randn(PROJECTION_DIM, STATE_DIM).astype(np.float32)
+        qec = QEC(KNN, BUFFER_SIZE, actions, projection)
+    return EpisodicControl(qec, DISCOUNT, actions, EPSILON, EPSILON_MIN,
+                           EPSILON_DECAY, ROM, rng)
 
 
 if __name__ == "__main__":
