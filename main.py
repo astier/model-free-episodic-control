@@ -14,13 +14,13 @@ from mfec.qec import QEC
 # TODO parameters as json-config
 ROMS = "./roms/"
 ROM = 'qbert.bin'
-STEPS_PER_EPOCH = 5000  # 10000
-EPOCHS = 30  # 5000
+STEPS_PER_EPOCH = 500  # 10000
+EPOCHS = 3  # 5000
 FRAME_SKIP = 4
 REPEAT_ACTION_PROBABILITY = 0
 KNN = 11
 DISCOUNT = 1.0
-BUFFER_SIZE = 1000000  # 1000000
+BUFFER_SIZE = 100000  # 1000000
 EPSILON = 1.0
 EPSILON_MIN = .005
 EPSILON_DECAY = 10000
@@ -28,7 +28,6 @@ RESIZE_WIDTH = 84
 RESIZE_HEIGHT = 84
 STATE_DIM = RESIZE_HEIGHT * RESIZE_WIDTH
 PROJECTION_DIM = 64
-DEATH_ENDS_EPISODE = False
 DISPLAY_SCREEN = False
 QEC_TABLE = ''
 SEED = 1
@@ -43,7 +42,7 @@ def main():  # TODO merge with experiment.py
     agent = EpisodicControl(qec, DISCOUNT, actions, EPSILON, EPSILON_MIN,
                             EPSILON_DECAY, ROM, rng)
     Experiment(ale, agent, RESIZE_WIDTH, RESIZE_HEIGHT, EPOCHS,
-               STEPS_PER_EPOCH, FRAME_SKIP, DEATH_ENDS_EPISODE).run()
+               STEPS_PER_EPOCH, FRAME_SKIP).run()
 
 
 def setup_ale():  # TODO ale vs gym

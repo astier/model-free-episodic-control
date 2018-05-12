@@ -83,7 +83,7 @@ class EpisodicControl(object):
         return action
 
     def choose_action(self, qec, epsilon, state, reward):
-        self.add_trace(self.state, self.action, reward, False)
+        self.add_trace(self.state, self.action, reward)
 
         # Epsilon greedy approach chooses random action for exploration
         if self.rng.rand() < epsilon:
@@ -100,7 +100,7 @@ class EpisodicControl(object):
 
         return best_action
 
-    def end_episode(self, reward, death):
+    def end_episode(self, reward):
         self.episode_reward += reward
         self.total_reward += self.episode_reward
         self.total_episodes += 1
@@ -108,7 +108,7 @@ class EpisodicControl(object):
         total_time = time.time() - self.start_time
 
         # Store the latest sample.
-        self.add_trace(self.state, self.action, np.clip(reward, -1, 1), death)
+        self.add_trace(self.state, self.action, np.clip(reward, -1, 1))
         # Do update
         q_return = 0.
         for i in range(len(self.traces) - 1, -1, -1):
@@ -126,10 +126,9 @@ class EpisodicControl(object):
         logging.info('episode {} reward: {:.2f}'.format(self.total_episodes,
                                                         self.episode_reward))
 
-    def add_trace(self, observation, action, reward, terminal=True):
+    def add_trace(self, observation, action, reward):
         self.traces.append(
-            {'state': observation, 'action': action, 'reward': reward,
-             'terminal': terminal})
+            {'state': observation, 'action': action, 'reward': reward})
 
     def finish_epoch(self, epoch):
         qec_prefix = self.result_dir + '/qec_'
