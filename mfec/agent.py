@@ -14,9 +14,9 @@ class MFECAgent(object):
         self.epsilon_min = epsilon_min
         self.epsilon_rate = self._compute_epsilon_rate(epsilon_decay)
         self.memory = []
+        self.projection = projection
         self.current_state = None
         self.current_action = None
-        self.projection = projection
 
     def _compute_epsilon_rate(self, epsilon_decay):
         if epsilon_decay != 0:
@@ -39,16 +39,15 @@ class MFECAgent(object):
         """Determine the action with the highest Q-value. If multiple
         actions with the the highest value exist then choose from this set
         of actions randomly."""
-        best_values = [(None, float('-inf'))]
-        for action in self.actions:
-            value = self.qec.estimate(self.current_state, action)
-            best_value = best_values[0][1]
-            if value > best_value:
-                best_values = [(action, value)]
-            if value == best_value:
-                best_values.append((action, value))
-        action = best_values[np.random.choice(range(len(best_values)))][0]
-        return action
+        action_values = [self.qec.estimate(self.current_state, action)
+                         for action in self.actions]
+
+        # TODO fix bug
+        assert not np.isnan(action_values).any()
+
+        best_value = np.max(action_values)
+        best_actions = np.argwhere(action_values == best_value).flatten()
+        return np.random.choice(best_actions)
 
     def receive_reward(self, reward):
         """Store (state, action, reward) tuple in memory."""
@@ -56,9 +55,10 @@ class MFECAgent(object):
             {'state': self.current_state, 'action': self.current_action,
              'reward': reward})
 
+    # TODO use pop
     def train(self):
         """Update Q-Values"""
-        q_value = 0.
+        q_value = .0
         for i in range(len(self.memory) - 1, -1, -1):
             experience = self.memory[i]
             q_value = q_value * self.discount + experience['reward']
