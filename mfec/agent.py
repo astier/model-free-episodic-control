@@ -41,10 +41,6 @@ class MFECAgent(object):
         of actions randomly."""
         action_values = [self.qec.estimate(self.current_state, action)
                          for action in self.actions]
-
-        # TODO fix bug
-        assert not np.isnan(action_values).any()
-
         best_value = np.max(action_values)
         best_actions = np.argwhere(action_values == best_value).flatten()
         return np.random.choice(best_actions)
@@ -55,12 +51,10 @@ class MFECAgent(object):
             {'state': self.current_state, 'action': self.current_action,
              'reward': reward})
 
-    # TODO use pop
     def train(self):
-        """Update Q-Values"""
+        """Update Q-Values via backwards-replay."""
         q_value = .0
-        for i in range(len(self.memory) - 1, -1, -1):
-            experience = self.memory[i]
+        for _ in range(len(self.memory)):
+            experience = self.memory.pop()
             q_value = q_value * self.discount + experience['reward']
             self.qec.update(experience['state'], experience['action'], q_value)
-        self.memory = []
