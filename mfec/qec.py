@@ -13,66 +13,55 @@ class QEC(object):
 
     def estimate(self, state, action):
         a_buffer = self.buffers[action]
-        q_value = a_buffer.peek(state, None, modify=False)
+        q_value = a_buffer.get_state_value(state)
         if q_value is not None:
             return q_value
         if a_buffer.curr_capacity < self.knn:  # TODO delegate to agent
             return float('inf')
         return a_buffer.knn_value(state, self.knn)
 
-    def update(self, state, action, q_value):
-        q_value = self.buffers[action].peek(state, q_value, modify=True)
-        if q_value is None:
-            self.buffers[action].add(state, q_value)
+    def update(self, state, action, value_new):
+        value_old = self.buffers[action].get_state_value(state)
+        self.buffers[action].add(state, max(value_old, value_new))
 
 
 class ActionBuffer(object):
 
     def __init__(self, capacity, state_dimension):
         self.capacity = capacity
-        # TODO vstack or dictionary
+        self.curr_capacity = 0
+
+        # TODO set of dictionaries
         self.states = np.zeros((capacity, state_dimension))
         self.q_values = np.zeros(capacity)
         self.lru = np.zeros(capacity)
-        self.curr_capacity = 0
+
+        self.tree = None  # TODO init here!
         self.tm = .0
-        self.tree = None
 
-    def peek(self, key, value, modify):
-        if self.curr_capacity == 0:
-            return None
-
-        # tree = KDTree(self.states[:self.curr_capacity])
-        dist, ind = self.tree.query([key], k=1)
-        ind = ind[0][0]
-
-        if np.allclose(self.states[ind], key):
-            self.lru[ind] = self.tm
-            self.tm += 0.01
-            if modify:
-                self.q_values[ind] = max(self.q_values[ind], value)
-            return self.q_values[ind]
-
+    def get_state_value(self, state):
+        if self.curr_capacity > 0:
+            # tree = KDTree(self.states[:self.curr_capacity])
+            _, closest_neighbors_indices = self.tree.query([state], k=1)
+            closest_neighbor_index = closest_neighbors_indices[0][0]
+            if np.allclose(self.states[closest_neighbor_index], state):
+                self.lru[closest_neighbor_index] = self.tm
+                self.tm += .01
+                return self.q_values[closest_neighbor_index]
         return None
 
     def knn_value(self, key, knn):
-        if self.curr_capacity == 0:
-            return .0
-
         # tree = KDTree(self.states[:self.curr_capacity])
-        dist, ind = self.tree.query([key], k=knn)
-
-        value = 0.0
+        _, ind = self.tree.query([key], k=knn)
+        value = .0
         for index in ind[0]:
             value += self.q_values[index]
             self.lru[index] = self.tm
-            self.tm += 0.01
-
+            self.tm += .01
         return value / knn
 
     def add(self, key, value):
         if self.curr_capacity >= self.capacity:
-            # find the LRU entry
             old_index = np.argmin(self.lru)
             self.states[old_index] = key
             self.q_values[old_index] = value
