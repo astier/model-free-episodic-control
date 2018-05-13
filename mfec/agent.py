@@ -32,14 +32,14 @@ class MFECAgent(object):
         if np.random.rand() > self.epsilon:
             self.current_action = self._exploit()
         else:
-            self.current_action = np.random.randint(0, self.actions)
+            self.current_action = np.random.choice(self.actions)
         return self.current_action
 
     def _exploit(self):
         """Determine the action with the highest q-value."""
         best_value = float('-inf')
         best_action = 0
-        for action in range(self.actions):
+        for action in self.actions:
             value = self.qec.estimate(self.current_state, action)
             # TODO random choice for multiple actions with same value
             if value > best_value:

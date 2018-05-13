@@ -71,7 +71,7 @@ def create_ale():
 
 
 def create_agent():
-    actions = len(ale.getMinimalActionSet())  # TODO range
+    actions = range(len(ale.getMinimalActionSet()))
 
     if QEC_TABLE_PATH:
         qec = utils.load_agent(QEC_TABLE_PATH)
