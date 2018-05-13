@@ -8,8 +8,8 @@ class QEC(object):
 
     def __init__(self, knn, buffer_size, actions, state_dimension):
         self.knn = knn
-        self.buffers = [ActionBuffer(buffer_size, state_dimension)
-                        for _ in actions]  # TODO as tuple?
+        self.buffers = tuple([ActionBuffer(buffer_size, state_dimension)
+                              for _ in actions])
 
     def estimate(self, state, action):
         a_buffer = self.buffers[action]
