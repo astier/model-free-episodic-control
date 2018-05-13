@@ -1,4 +1,4 @@
-#! /usr/bin/env python2
+#!/usr/bin/env python2
 
 import numpy as np
 
@@ -13,7 +13,7 @@ class MFECAgent(object):
         self.epsilon = epsilon
         self.epsilon_min = epsilon_min
         self.epsilon_rate = self._compute_epsilon_rate(epsilon_decay)
-        self.memory = []  # TODO use numpy
+        self.memory = []
         self.current_state = None
         self.current_action = None
         self.projection = projection
@@ -23,10 +23,11 @@ class MFECAgent(object):
             return (self.epsilon - self.epsilon_min) / epsilon_decay
         return 0
 
-    def act(self, observation):  # TODO initialize first knn buffer?
+    # TODO initialize first knn buffer?
+    def act(self, observation):
         """Choose an action for the given observation."""
         self.current_state = np.dot(self.projection, observation.flatten())
-        # TODO generator
+        # TODO generator?
         self.epsilon = max(self.epsilon_min, self.epsilon - self.epsilon_rate)
         if np.random.rand() > self.epsilon:
             self.current_action = self._exploit()
@@ -40,6 +41,7 @@ class MFECAgent(object):
         best_action = 0
         for action in range(self.actions):
             value = self.qec.estimate(self.current_state, action)
+            # TODO random choice for multiple actions with same value
             if value > best_value:
                 best_value = value
                 best_action = action

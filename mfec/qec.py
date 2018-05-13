@@ -1,4 +1,4 @@
-#! /usr/bin/env python2
+#!/usr/bin/env python2
 
 import numpy as np
 from sklearn.neighbors.kd_tree import KDTree
@@ -9,21 +9,14 @@ class QEC(object):
     def __init__(self, knn, buffer_size, actions, state_dimension):
         self.knn = knn
         self.buffers = [ActionBuffer(buffer_size, state_dimension)
-                        for _ in range(actions)]
+                        for _ in range(actions)]  # TODO as tuple?
 
     def estimate(self, state, action):
         a_buffer = self.buffers[action]
         q_value = a_buffer.peek(state, None, modify=False)
         if q_value is not None:
             return q_value
-        # If the number of elements in the action-buffer is smaller than k
-        # then return an 'infinitely' high reward to make sure that this action
-        # gets explored, otherwise an estimation by the knn-algorithm
-        # can not be performed and throws an exception,
-        # because it needs at least k elements as neighbors.
-        # TODO Consider implementing as -inf or filling up action-buffers
-        # TODO randomly before anything else
-        elif a_buffer.curr_capacity < self.knn:
+        if a_buffer.curr_capacity < self.knn:  # TODO delegate to agent
             return float('inf')
         return a_buffer.knn_value(state, self.knn)
 
@@ -37,7 +30,8 @@ class ActionBuffer(object):
 
     def __init__(self, capacity, state_dimension):
         self.capacity = capacity
-        self.states = np.zeros((capacity, state_dimension))  # TODO vstack
+        # TODO vstack or dictionary
+        self.states = np.zeros((capacity, state_dimension))
         self.q_values = np.zeros(capacity)
         self.lru = np.zeros(capacity)
         self.curr_capacity = 0

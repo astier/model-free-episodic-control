@@ -1,4 +1,4 @@
-#! /usr/bin/env python2
+#!/usr/bin/env python2
 
 import logging
 import os
@@ -20,11 +20,11 @@ QEC_TABLE_PATH = None
 EPOCHS = 10
 FRAMES_PER_EPOCH = 10000
 FRAMES_PER_ACTION = 4
-DISCOUNT = 1.0
+DISCOUNT = 1.
 KNN = 11
 ACTION_BUFFER_SIZE = 1000000  # 1000000
 
-EPSILON = 1.0
+EPSILON = 1.
 EPSILON_MIN = .005
 EPSILON_DECAY = 10000
 
@@ -71,7 +71,7 @@ def create_ale():
 
 
 def create_agent():
-    actions = len(ale.getMinimalActionSet())
+    actions = len(ale.getMinimalActionSet())  # TODO range
 
     if QEC_TABLE_PATH:
         qec = utils.load_agent(QEC_TABLE_PATH)

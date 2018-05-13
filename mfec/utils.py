@@ -1,6 +1,6 @@
-#! /usr/bin/env python2
+#!/usr/bin/env python2
 
-import cPickle
+import cPickle  # TODO json?
 import logging
 import os
 
@@ -42,7 +42,7 @@ class Utils(object):
 
         # Save qec-table
         qec = open(qec_prefix + str(epoch) + '.pkl', 'w')
-        cPickle.dump(agent.qec, qec, 2)  # TODO cpickle vs json!!
+        cPickle.dump(agent.qec, qec, 2)
         qec.close()
 
         # Remove old qec-table to save storage space
