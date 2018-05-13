@@ -57,4 +57,5 @@ class MFECAgent(object):
         for _ in range(len(self.memory)):
             experience = self.memory.pop()
             q_value = q_value * self.discount + experience['reward']
+            # TODO batch-update
             self.qec.update(experience['state'], experience['action'], q_value)

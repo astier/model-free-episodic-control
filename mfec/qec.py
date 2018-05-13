@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
 import time
+
 import numpy as np
 from sklearn.neighbors.kd_tree import KDTree  # TODO pyflann??
 

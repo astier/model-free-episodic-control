@@ -5,6 +5,7 @@ import logging
 import os
 
 
+# TODO improve output and stats
 class Utils(object):
 
     def __init__(self, results_dir):

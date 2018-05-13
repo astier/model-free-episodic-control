@@ -40,7 +40,6 @@ agent = None
 utils = None
 
 
-# TODO define better dir-name
 def main():
     global utils, ale, agent
     logging.basicConfig(level=logging.INFO)
@@ -103,6 +102,7 @@ def run_episode(max_frames):
     frames = 0
 
     # TODO terminal if dead?
+    # TODO don't stop in the middle of an episode
     while not ale.game_over() and frames < max_frames:
         # TODO observation should be the last 4 frames?
         observation = scale(ale.getScreenGrayscale()[:, :, 0])
