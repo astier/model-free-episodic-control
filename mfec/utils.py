@@ -13,29 +13,32 @@ class Utils(object):
         self.results_file = self._create_results_file()
         self.epoch_reward = 0
         self.epoch_episodes = 0
+        self.epoch_frames = 0
 
     def _create_results_file(self):
         results_file_name = os.path.join(self.results_dir, 'results.csv')
         results_file = open(results_file_name, 'w')
-        results_file.write('epoch, episodes, reward_sum, reward_avg\n')
+        results_file.write('epoch, episodes, frames, reward_sum, reward_avg\n')
         return results_file
 
-    def update_results(self, episode_reward):
+    def update_results(self, episode_reward, episode_frames):
         """Should be always and only executed at the end of an episode."""
         self.epoch_reward += episode_reward
         self.epoch_episodes += 1
-        logging.info('Episode {} Reward: {:.2f} \n'.format(
+        self.epoch_frames += episode_frames
+        logging.info('Episode: {} Reward: {:.2f}\n'.format(
             self.epoch_episodes, episode_reward))
 
     # TODO make output prettier
     def save_results(self, epoch):
         """Save the results for the given epoch in the results-file"""
-        results = [epoch, self.epoch_episodes, self.epoch_reward,
-                   self.epoch_reward / self.epoch_episodes]
-        message = 'Epoch: {}\tEpisodes: {}\tTotal-Reward: {}\tAvg-Reward: {}\n'
+        results = [epoch, self.epoch_episodes, self.epoch_frames,
+                   self.epoch_reward, self.epoch_reward / self.epoch_episodes]
+        message = 'Epoch: {}\tEpisodes: {}\tFrames:: {}\tTotal-Reward: {' \
+                  '}\tAvg-Reward: {}\n'
         logging.info(message.format(*results))
 
-        self.results_file.write('{},{},{},{}\n'.format(*results))
+        self.results_file.write('{},{},{},{},{}\n'.format(*results))
         self.results_file.flush()
         self.epoch_episodes = 0
         self.epoch_reward = 0

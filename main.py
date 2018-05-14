@@ -6,7 +6,7 @@ import sys
 import time
 
 import numpy as np
-import scipy.misc  # TODO other method than scipy?
+import scipy.misc
 from ale_python_interface import ALEInterface  # TODO ale vs gym
 
 from mfec.agent import MFECAgent
@@ -15,23 +15,24 @@ from mfec.utils import Utils
 
 # TODO load parameters as json-config
 ROM_FILE_NAME = 'qbert.bin'
-QEC_TABLE_PATH = None
-SAVE_QEC_TABLE = False
+QEC_TABLE_PATH = 'agents/qbert_v0/qec.pkl'
+SAVE_QEC_TABLE = True
 
 DISPLAY_SCREEN = False
 PLAY_SOUND = False
 
 SEED = 42
-EPOCHS = 10
-FRAMES_PER_EPOCH = 20000
+EPOCHS = 20
+FRAMES_PER_EPOCH = 6000
 
 ACTION_BUFFER_SIZE = 1000000  # 1000000
 FRAMES_PER_ACTION = 4
+# TODO LIVE_LOSE_PENALTY = 25
 
 K = 11
 DISCOUNT = 1.
 
-EPSILON = 1.
+EPSILON = .005
 EPSILON_MIN = .005
 EPSILON_DECAY = 10000
 
@@ -77,8 +78,8 @@ def create_ale():
         elif sys.platform.startswith('linux'):
             env.setBool('sound', PLAY_SOUND)
     env.setBool('display_screen', DISPLAY_SCREEN)
-    env.loadROM(os.path.join('roms', ROM_FILE_NAME))
 
+    env.loadROM(os.path.join('roms', ROM_FILE_NAME))
     return env
 
 
@@ -89,7 +90,7 @@ def create_agent():
         qec = utils.load_agent(QEC_TABLE_PATH)
 
     else:
-        # TODO is this _projection correct?
+        # TODO test different projections and store the best
         projection = np.random.randn(STATE_DIMENSION,
                                      SCALE_HEIGHT * SCALE_WIDTH).astype(
             np.float32)
@@ -119,23 +120,24 @@ def run():
 
 def run_episode():
     episode_reward = 0
-    frames = 0
+    episode_frames = 0
 
     # TODO terminal if dead?
     while not ale.game_over():
         # TODO observation should be the last 4 frames?
         observation = get_observation()
         action = agent.act(observation)
+        # TODO stop if dead
         reward = sum([ale.act(action) for _ in range(FRAMES_PER_ACTION)])
 
         agent.receive_reward(reward)
         episode_reward += reward
-        frames += FRAMES_PER_ACTION
+        episode_frames += FRAMES_PER_ACTION
 
     agent.train()
     ale.reset_game()
-    utils.update_results(episode_reward)
-    return frames
+    utils.update_results(episode_reward, episode_frames)
+    return episode_frames
 
 
 # TODO make modular and implement VAE
