@@ -30,19 +30,19 @@ Execute:
 ```
 python main.py
 ```
-
 You can change the hyperparameters directly in the *main.py* file.
-
 A result-directory will be created where the agent's results will be stored.
-If desired the agents Q<sup>EC</sup> table can also be stored by setting:
+
+The trained agent can be saved to the hard-drive by setting:
 ```
 SAVE_QEC_TABLE = True
 ```
-
-**Warning:** The Q<sup>EC</sup>-tables can become very big very quick
-(several gigabytes) depending on the action-buffer-size.
+The stored Q<sup>EC</sup>-table can then be used to load the agent back into
+memory.
+**Warning:** The Q<sup>EC</sup>-tables can become several gigabytes large
+depending on the action-buffer-size and the training-time.
 
 ## Notes
+- VAE is not implemented. Only random projection.
 - Currently, the algorithm might still do not work exactly like in the paper.
 - The agent is trained on the CPU and not GPU.
-- VAE is not implemented. Only random projection.
