@@ -8,8 +8,8 @@ class QEC(object):
 
     def __init__(self, actions, buffer_size, k, projection):
         self.buffers = tuple([ActionBuffer(buffer_size) for _ in actions])
-        self.k = k
         self._projection = projection
+        self.k = k
 
     def project(self, observation):
         return np.dot(self._projection, observation.flatten())
@@ -55,11 +55,10 @@ class ActionBuffer(object):
         self.values = []
         self.time_steps = []
 
-    # TODO simply np.allclose over all states?
     def find_state(self, state):
         if self._tree:
             neighbor = self._tree.query([state])[1][0][0]
-            # TODO check np.allclose
+            # TODO experiment with rtol and atol
             if np.allclose(self.states[neighbor], state):
                 return neighbor
         return None
@@ -81,7 +80,7 @@ class ActionBuffer(object):
         # memory ~ n_samples / leaf_size, default_leaf_size=40
         self._tree = KDTree(self.states)
 
-    # TODO VQ/mean?
+    # TODO VQ/mean/prototypes?
     def replace(self, state, value, time_step, index):
         self.states[index] = state
         self.values[index] = value

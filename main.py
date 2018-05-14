@@ -15,7 +15,7 @@ from mfec.utils import Utils
 
 # TODO load parameters as json-config
 ROM_FILE_NAME = 'qbert.bin'
-QEC_TABLE_PATH = 'agents/qbert_v0/qec.pkl'
+QEC_TABLE_PATH = ''
 SAVE_QEC_TABLE = True
 
 DISPLAY_SCREEN = False
@@ -23,7 +23,7 @@ PLAY_SOUND = False
 
 SEED = 42
 EPOCHS = 20
-FRAMES_PER_EPOCH = 6000
+FRAMES_PER_EPOCH = 20000
 
 ACTION_BUFFER_SIZE = 1000000  # 1000000
 FRAMES_PER_ACTION = 4
@@ -32,7 +32,7 @@ FRAMES_PER_ACTION = 4
 K = 11
 DISCOUNT = 1.
 
-EPSILON = .005
+EPSILON = 1.
 EPSILON_MIN = .005
 EPSILON_DECAY = 10000
 

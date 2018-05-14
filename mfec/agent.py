@@ -9,19 +9,22 @@ class MFECAgent(object):
 
     def __init__(self, qec, discount, actions, epsilon, epsilon_min,
                  epsilon_decay):
-        self.qec = qec
-        self.discount = discount
         self.actions = actions
-        self.epsilon = epsilon
-        self.epsilon_min = epsilon_min
-        self.epsilon_rate = self._compute_epsilon_rate(epsilon_decay)
+        self.qec = qec
         self.memory = []
+
         self.current_state = None
         self.current_action = None
         self.current_time = None
 
+        self.discount = discount
+        self.epsilon = epsilon
+        self.epsilon_min = epsilon_min
+        self.epsilon_rate = self._compute_epsilon_rate(epsilon_decay)
+
+    # TODO does it work like in the paper?
     def _compute_epsilon_rate(self, epsilon_decay):
-        if epsilon_decay != 0:
+        if epsilon_decay:
             return (self.epsilon - self.epsilon_min) / epsilon_decay
         return 0
 
@@ -29,12 +32,13 @@ class MFECAgent(object):
         """Choose an action for the given observation."""
         self.current_state = self.qec.project(observation)
         self.current_time = time.clock()
-
-        # TODO generator?
         self.epsilon = max(self.epsilon_min, self.epsilon - self.epsilon_rate)
+
+        # Exploitation
         if np.random.rand() > self.epsilon:
             self.current_action = self._exploit()
 
+        # Exploration
         else:
             self.current_action = np.random.choice(self.actions)
         return self.current_action

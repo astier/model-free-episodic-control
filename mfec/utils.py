@@ -6,6 +6,7 @@ import os
 
 
 # TODO improve output and stats
+# TODO are there libraries for this?
 class Utils(object):
 
     def __init__(self, results_dir):
