@@ -18,7 +18,7 @@ SAVE_QEC_TABLE = False
 QEC_TABLE_PATH = None
 
 EPOCHS = 10
-FRAMES_PER_EPOCH = 10000
+FRAMES_PER_EPOCH = 5000  # 10000
 FRAMES_PER_ACTION = 4
 DISCOUNT = 1.
 K = 11
@@ -86,25 +86,30 @@ def create_agent():
 
 
 def run():
+    frames_played = 0
     for epoch in range(1, EPOCHS + 1):
         frames_left = FRAMES_PER_EPOCH
 
         while frames_left > 0:
-            logging.info("Epoch: {}\tFrames: {}".format(epoch, frames_left))
-            frames_left -= run_episode(frames_left)
+            logging.info(
+                'Epoch: {}\tFrames: {}/{}'.format(epoch, frames_played,
+                                                  FRAMES_PER_EPOCH * EPOCHS))
+            frames_episode = run_episode()
+            frames_played += frames_episode
+            frames_left -= frames_episode
 
         utils.save_results(epoch)
         if SAVE_QEC_TABLE:
             utils.save_agent(epoch, agent)
 
 
-def run_episode(max_frames):
+def run_episode():
     episode_reward = 0
     frames = 0
 
     # TODO terminal if dead?
     # TODO don't stop in the middle of an episode
-    while not ale.game_over() and frames < max_frames:
+    while not ale.game_over():
         # TODO observation should be the last 4 frames?
         observation = get_observation()
         action = agent.act(observation)
@@ -120,6 +125,7 @@ def run_episode(max_frames):
     return frames
 
 
+# TODO make modular and implement VAE
 def get_observation():
     observation = ale.getScreenGrayscale()[:, :, 0]
     return scipy.misc.imresize(observation, size=(SCALE_WIDTH, SCALE_HEIGHT))

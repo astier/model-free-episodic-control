@@ -26,7 +26,6 @@ class MFECAgent(object):
             return (self.epsilon - self.epsilon_min) / epsilon_decay
         return 0
 
-    # TODO initialize first k buffer?
     def act(self, observation):
         """Choose an action for the given observation."""
         self.current_state = np.dot(self.projection, observation.flatten())
@@ -54,7 +53,6 @@ class MFECAgent(object):
 
     def receive_reward(self, reward):
         """Store (state, action, reward) tuple in memory."""
-        # TODO np.allclose
         self.memory.append(
             {'state': self.current_state, 'action': self.current_action,
              'reward': reward, 'time_steps': self.current_time})

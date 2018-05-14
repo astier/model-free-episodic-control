@@ -24,15 +24,18 @@ class Utils(object):
         """Should be always and only executed at the end of an episode."""
         self.epoch_reward += episode_reward
         self.epoch_episodes += 1
-        logging.info('Episode {} Episode-Reward: {:.2f}\n'.format(
+        logging.info('Episode {} Reward: {:.2f} \n'.format(
             self.epoch_episodes, episode_reward))
 
+    # TODO make output prettier
     def save_results(self, epoch):
         """Save the results for the given epoch in the results-file"""
-        stats = "{},{},{},{}\n".format(epoch, self.epoch_episodes,
-                                       self.epoch_reward, self.epoch_reward /
-                                       self.epoch_episodes)
-        self.results_file.write(stats)
+        results = [epoch, self.epoch_episodes, self.epoch_reward,
+                   self.epoch_reward / self.epoch_episodes]
+        message = 'Epoch: {}\tEpisodes: {}\tTotal-Reward: {}\tAvg-Reward: {}\n'
+        logging.info(message.format(*results))
+
+        self.results_file.write('{},{},{},{}\n'.format(*results))
         self.results_file.flush()
         self.epoch_episodes = 0
         self.epoch_reward = 0
