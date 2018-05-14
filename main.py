@@ -105,7 +105,7 @@ def run_episode(max_frames):
     # TODO don't stop in the middle of an episode
     while not ale.game_over() and frames < max_frames:
         # TODO observation should be the last 4 frames?
-        observation = scale(ale.getScreenGrayscale()[:, :, 0])
+        observation = get_observation()
         action = agent.act(observation)
         reward = sum([ale.act(action) for _ in range(FRAMES_PER_ACTION)])
 
@@ -119,9 +119,9 @@ def run_episode(max_frames):
     return frames
 
 
-def scale(observation):
-    size = (SCALE_WIDTH, SCALE_HEIGHT)
-    return scipy.misc.imresize(observation, size=size)
+def get_observation():
+    observation = ale.getScreenGrayscale()[:, :, 0]
+    return scipy.misc.imresize(observation, size=(SCALE_WIDTH, SCALE_HEIGHT))
 
 
 if __name__ == "__main__":
