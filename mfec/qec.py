@@ -18,8 +18,8 @@ class QEC(object):
             a_buffer.time_steps[state_index] = time_step  # TODO not in paper
             return a_buffer.values[state_index]
 
-        if len(a_buffer) < self.k:  # TODO delegate to agent
-            return float('inf')  # TODO tree.query([state], curr_capacity)???
+        if len(a_buffer) <= self.k:
+            return float('inf')
 
         value = .0
         neighbors = a_buffer.find_neighbors(state, self.k)
@@ -77,7 +77,7 @@ class ActionBuffer(object):
         # memory ~ n_samples / leaf_size, default_leaf_size=40
         self._tree = KDTree(self.states)
 
-    # TODO mean between states?
+    # TODO VQ/mean?
     def replace(self, state, value, time_step, index):
         self.states[index] = state
         self.values[index] = value
