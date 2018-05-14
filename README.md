@@ -1,7 +1,5 @@
 # Model-Free Episodic Control
 
-**CODEBASE STILL UNDER CONSTRUCTION**
-
 ## Description
 Implementation of the
 **[Model-Free Episodic Control](http://arxiv.org/abs/1606.04460)**
@@ -10,12 +8,16 @@ algorithm. This is a fork of the repository from
 whereas his work is a fork of the original work from
 **[ShibiHe](https://github.com/ShibiHe/Model-Free-Episodic-Control)**.
 
-The contributions of this project so far are:
-- Bugfix
-- Lean, clean, readable, structured and simple codebase and project-structure
-due to heavy refactoring
-- Faster???
-- No clipping (as done in the paper)
+The projects goal is a high quality implementation of the algorithm.
+This includes:
+- Bugfixes
+- Refactoring and cleaning of the codebase and project to make it more
+maintainable, readable and extensible.
+- Optimizations
+- Active maintenance
+- Modularity for easy altering of the algorithms behavior
+- Maybe implementations of related algorithms like the
+[Neural Episodic Control](https://arxiv.org/pdf/1703.01988.pdf)
 
 ## Requirements
 - Python 2
