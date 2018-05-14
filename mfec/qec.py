@@ -45,37 +45,37 @@ class QEC(object):
 class ActionBuffer(object):
 
     def __init__(self, capacity):
-        self.tree = None  # TODO init here!
+        self._tree = None
         self.capacity = capacity
-
-        # TODO set of dictionaries
         self.states = []
         self.values = []
         self.time_steps = []
 
     # TODO simply np.allclose over all states?
     def find_state(self, state):
-        if len(self.states) > 0:
-            neighbor = self.tree.query([state])[1][0][0]
+        if self._tree:
+            neighbor = self._tree.query([state])[1][0][0]
             # TODO check np.allclose
             if np.allclose(self.states[neighbor], state):
                 return neighbor
         return None
 
     def find_neighbors(self, state, k):
-        return self.tree.query([state], k)[1][0]
+        if self._tree:
+            return self._tree.query([state], k)[1][0]
+        return []
 
     def add(self, state, value, time_step):
-        if len(self.states) < self.capacity:
+        if len(self) < self.capacity:
             self.states.append(state)
             self.values.append(value)
             self.time_steps.append(time_step)
         else:
             self.replace(state, value, time_step, np.argmin(self.time_steps))
 
-        # TODO smarter tree-update
+        # TODO smarter _tree-update
         # memory ~ n_samples / leaf_size, default_leaf_size=40
-        self.tree = KDTree(self.states)
+        self._tree = KDTree(self.states)
 
     # TODO mean between states?
     def replace(self, state, value, time_step, index):
@@ -83,6 +83,5 @@ class ActionBuffer(object):
         self.values[index] = value
         self.time_steps[index] = time_step
 
-    # TODO use it!
     def __len__(self):
         return len(self.states)

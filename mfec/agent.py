@@ -34,7 +34,7 @@ class MFECAgent(object):
 
         # TODO generator?
         self.epsilon = max(self.epsilon_min, self.epsilon - self.epsilon_rate)
-        if np.random.rand() > self.epsilon:  # TODO expose bug by <
+        if np.random.rand() > self.epsilon:
             self.current_action = self._exploit()
 
         else:
