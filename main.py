@@ -21,7 +21,7 @@ EPOCHS = 10
 FRAMES_PER_EPOCH = 10000
 FRAMES_PER_ACTION = 4
 DISCOUNT = 1.
-KNN = 11
+K = 11
 ACTION_BUFFER_SIZE = 1000000  # 1000000
 
 EPSILON = 1.
@@ -75,11 +75,12 @@ def create_agent():
     if QEC_TABLE_PATH:
         qec = utils.load_agent(QEC_TABLE_PATH)
     else:
-        qec = QEC(KNN, ACTION_BUFFER_SIZE, actions, STATE_DIMENSION)
+        qec = QEC(K, ACTION_BUFFER_SIZE, actions)
 
     # TODO is this projection correct?
     projection = np.random.randn(STATE_DIMENSION,
                                  SCALE_HEIGHT * SCALE_WIDTH).astype(np.float32)
+
     return MFECAgent(qec, DISCOUNT, actions, EPSILON, EPSILON_MIN,
                      EPSILON_DECAY, projection)
 
