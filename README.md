@@ -8,44 +8,41 @@ algorithm. This is a fork of the repository from
 whereas his work is a fork of the original work from
 **[ShibiHe](https://github.com/ShibiHe/Model-Free-Episodic-Control)**.
 
-The projects goal is a high quality implementation of the algorithm.
-This includes:
+Current contributions:
 - Bugfixes
-- Refactoring and cleaning of the codebase and project to make it more
-maintainable, readable and extensible.
 - Optimizations
-- Active maintenance
-- Modularity for easy altering of the algorithms behavior
-- Maybe implementations of related algorithms like the
-[Neural Episodic Control](https://arxiv.org/pdf/1703.01988.pdf)
+- Make it actually work like in the paper (not 100% accomplished)
+- Heavy refactoring and cleaning of the codebase to make it:
+    + Maintainable
+    + Readable
+    + Extensible
 
 ## Requirements
 - Python 2
 - Numpy
 - SciPy
 - scikit-learn
-- [Arcade Learning Environment](https://github.com/mgbellemare/Arcade-Learning-Environment).
-It maybe be easier to install via [OpenAI Gym](https://github.com/openai/gym):
-
-      `pip install gym`
-      `pip install -e '.[atari]'`
-      
+- Arcade Learning Environment
 - Game-rom which has to be placed in the rom-directory
 
 ## Run
-Execute `python main.py`
+Execute:
+```
+python main.py
+```
 
 You can change the hyperparameters directly in the *main.py* file.
 
-A result-directory will be created where the agents results with some
-statistics are stored. If desired the agents Q<sup>EC</sup> table can also be
-stored by setting:
-> SAVE_QEC_TABLE = True
+A result-directory will be created where the agent's results will be stored.
+If desired the agents Q<sup>EC</sup> table can also be stored by setting:
+```
+SAVE_QEC_TABLE = True
+```
 
 **Warning:** The Q<sup>EC</sup>-tables can become very big very quick
 (several gigabytes) depending on the action-buffer-size.
 
 ## Notes
-- Currently the algorithm might does not work exactly like in the paper.
+- Currently, the algorithm might still do not work exactly like in the paper.
 - The agent is trained on the CPU and not GPU.
 - VAE is not implemented. Only random projection.
