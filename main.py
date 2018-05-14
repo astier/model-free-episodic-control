@@ -13,12 +13,12 @@ from mfec.qec import QEC
 from mfec.utils import Utils
 
 # TODO load parameters as json-config
-ROM_FILE_NAME = 'ms_pacman.bin'
-SAVE_QEC_TABLE = False
-QEC_TABLE_PATH = None
+ROM_FILE_NAME = 'qbert.bin'
+SAVE_QEC_TABLE = True
+QEC_TABLE_PATH = 'results/qbert_v0/qec_10.pkl'
 
 EPOCHS = 10
-FRAMES_PER_EPOCH = 5000  # 10000
+FRAMES_PER_EPOCH = 20000
 FRAMES_PER_ACTION = 4
 DISCOUNT = 1.
 K = 11
@@ -74,15 +74,16 @@ def create_agent():
 
     if QEC_TABLE_PATH:
         qec = utils.load_agent(QEC_TABLE_PATH)
-    else:
-        qec = QEC(K, ACTION_BUFFER_SIZE, actions)
 
-    # TODO is this projection correct?
-    projection = np.random.randn(STATE_DIMENSION,
-                                 SCALE_HEIGHT * SCALE_WIDTH).astype(np.float32)
+    else:
+        # TODO is this _projection correct?
+        projection = np.random.randn(STATE_DIMENSION,
+                                     SCALE_HEIGHT * SCALE_WIDTH).astype(
+            np.float32)
+        qec = QEC(actions, ACTION_BUFFER_SIZE, K, projection)
 
     return MFECAgent(qec, DISCOUNT, actions, EPSILON, EPSILON_MIN,
-                     EPSILON_DECAY, projection)
+                     EPSILON_DECAY)
 
 
 def run():
@@ -108,7 +109,6 @@ def run_episode():
     frames = 0
 
     # TODO terminal if dead?
-    # TODO don't stop in the middle of an episode
     while not ale.game_over():
         # TODO observation should be the last 4 frames?
         observation = get_observation()

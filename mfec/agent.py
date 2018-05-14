@@ -8,14 +8,13 @@ import numpy as np
 class MFECAgent(object):
 
     def __init__(self, qec, discount, actions, epsilon, epsilon_min,
-                 epsilon_decay, projection, ):
+                 epsilon_decay):
         self.qec = qec
         self.discount = discount
         self.actions = actions
         self.epsilon = epsilon
         self.epsilon_min = epsilon_min
         self.epsilon_rate = self._compute_epsilon_rate(epsilon_decay)
-        self.projection = projection
         self.memory = []
         self.current_state = None
         self.current_action = None
@@ -28,7 +27,7 @@ class MFECAgent(object):
 
     def act(self, observation):
         """Choose an action for the given observation."""
-        self.current_state = np.dot(self.projection, observation.flatten())
+        self.current_state = self.qec.project(observation)
         self.current_time = time.clock()
 
         # TODO generator?

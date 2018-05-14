@@ -6,9 +6,13 @@ from sklearn.neighbors.kd_tree import KDTree  # TODO pyflann??
 
 class QEC(object):
 
-    def __init__(self, k, buffer_size, actions):
-        self.k = k
+    def __init__(self, actions, buffer_size, k, projection):
         self.buffers = tuple([ActionBuffer(buffer_size) for _ in actions])
+        self.k = k
+        self._projection = projection
+
+    def project(self, observation):
+        return np.dot(self._projection, observation.flatten())
 
     def estimate(self, state, action, time_step):
         a_buffer = self.buffers[action]
@@ -73,7 +77,7 @@ class ActionBuffer(object):
         else:
             self.replace(state, value, time_step, np.argmin(self.time_steps))
 
-        # TODO smarter _tree-update
+        # TODO smarter tree-update
         # memory ~ n_samples / leaf_size, default_leaf_size=40
         self._tree = KDTree(self.states)
 
