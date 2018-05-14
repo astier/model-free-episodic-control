@@ -15,19 +15,29 @@ class QEC(object):
 
     def estimate(self, state, action):
         a_buffer = self.buffers[action]
-        value = a_buffer.stored_value(state)[1]
-        if value:
-            return value
+
+        neighbor = a_buffer.neighbor(state)
+        if neighbor:
+            a_buffer.lru[neighbor] = time.clock()  # TODO not in mfec paper
+            return a_buffer.q_values[neighbor]
+
         if a_buffer.curr_capacity < self.knn:  # TODO delegate to agent
-            return float('inf')
-        return a_buffer.estimated_value(state, self.knn)
+            return float('inf')  # TODO tree.query([state], curr_capacity)???
+
+        neighbors = a_buffer.tree.query([state], self.knn)[1][0]
+        value = .0
+        for state_index in neighbors:
+            value += a_buffer.q_values[state_index]
+            a_buffer.lru[state_index] = time.clock()  # TODO not mfec paper
+        return value / self.knn
 
     # TODO batch update
     def update(self, state, action, new_value):
         a_buffer = self.buffers[action]
-        state_index, old_value = a_buffer.stored_value(state)
-        if state_index:
-            a_buffer.insert(state, max(old_value, new_value), state_index)
+        neighbor = a_buffer.neighbor(state)
+        if neighbor:
+            old_value = a_buffer.q_values[neighbor]
+            a_buffer.insert(state, max(old_value, new_value), neighbor)
         else:
             a_buffer.add(state, new_value)
 
@@ -43,22 +53,13 @@ class ActionBuffer(object):
         self.q_values = np.zeros(capacity)
         self.lru = np.zeros(capacity)
 
-    def stored_value(self, state):
+    def neighbor(self, state):
         if self.curr_capacity > 0:
-            state_index = self.tree.query([state])[1][0][0]
+            neighbor = self.tree.query([state])[1][0]
             # TODO check np.allclose
-            if np.allclose(self.states[state_index], state):
-                self.lru[state_index] = time.clock()
-                return state_index, self.q_values[state_index]
-        return None, None  # TODO None, None is ugly
-
-    def estimated_value(self, state, knn):
-        closest_neighbors_indices = self.tree.query([state], k=knn)[1][0]
-        value = .0
-        for state_index in closest_neighbors_indices:
-            value += self.q_values[state_index]
-            self.lru[state_index] = time.clock()
-        return value / knn
+            if np.allclose(self.states[neighbor], state):
+                return neighbor
+        return None
 
     def add(self, state, value):
         if self.curr_capacity < self.capacity:
@@ -75,4 +76,3 @@ class ActionBuffer(object):
     def insert(self, state, value, index):
         self.states[index] = state
         self.q_values[index] = value
-        self.lru[index] = time.clock()  # TODO delete here?
