@@ -22,7 +22,7 @@ class QEC(object):
             a_buffer.time_steps[state_index] = time_step  # TODO not in paper
             return a_buffer.values[state_index]
 
-        if len(a_buffer) <= self.k:
+        if len(a_buffer) <= self.k:  # TODO init-phase
             return float('inf')
 
         value = .0

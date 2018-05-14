@@ -58,7 +58,7 @@ class MFECAgent(object):
 
     # TODO batch-update
     def train(self):
-        """Update Q-Values via backwards-replay."""
+        """Update Q-Values via backward-replay."""
         value = .0
         for _ in range(len(self.memory)):
             experience = self.memory.pop()

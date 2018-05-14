@@ -106,7 +106,7 @@ def run():
         frames_left = FRAMES_PER_EPOCH
 
         while frames_left > 0:
-            logging.info(
+            logging.info(  # TODO improve stats-output
                 'Epoch: {}\tFrames: {}/{}'.format(epoch, frames_played,
                                                   FRAMES_PER_EPOCH * EPOCHS))
             frames_episode = run_episode()
