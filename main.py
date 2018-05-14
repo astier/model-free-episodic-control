@@ -2,11 +2,12 @@
 
 import logging
 import os
+import sys
 import time
 
 import numpy as np
 import scipy.misc  # TODO other method than scipy?
-from atari_py.ale_python_interface import ALEInterface  # TODO ale vs gym
+from ale_python_interface import ALEInterface  # TODO ale vs gym
 
 from mfec.agent import MFECAgent
 from mfec.qec import QEC
@@ -14,15 +15,21 @@ from mfec.utils import Utils
 
 # TODO load parameters as json-config
 ROM_FILE_NAME = 'qbert.bin'
-SAVE_QEC_TABLE = True
-QEC_TABLE_PATH = 'results/qbert_v0/qec_10.pkl'
+QEC_TABLE_PATH = None
+SAVE_QEC_TABLE = False
 
+DISPLAY_SCREEN = False
+PLAY_SOUND = False
+
+SEED = 42
 EPOCHS = 10
 FRAMES_PER_EPOCH = 20000
-FRAMES_PER_ACTION = 4
-DISCOUNT = 1.
-K = 11
+
 ACTION_BUFFER_SIZE = 1000000  # 1000000
+FRAMES_PER_ACTION = 4
+
+K = 11
+DISCOUNT = 1.
 
 EPSILON = 1.
 EPSILON_MIN = .005
@@ -31,9 +38,6 @@ EPSILON_DECAY = 10000
 SCALE_WIDTH = 84
 SCALE_HEIGHT = 84
 STATE_DIMENSION = 64
-
-DISPLAY_SCREEN = False
-SEED = 42
 
 ale = None
 agent = None
@@ -62,10 +66,19 @@ def create_utils():
 def create_ale():
     env = ALEInterface()
     env.setInt('random_seed', SEED)
-    env.setBool('display_screen', DISPLAY_SCREEN)
     env.setFloat('repeat_action_probability', 0.)  # DON'T TURN IT ON!
     env.setBool('color_averaging', True)  # TODO compare to max
+
+    if DISPLAY_SCREEN:
+        if sys.platform == 'darwin':
+            import pygame
+            pygame.init()
+            env.setBool('sound', False)  # Sound doesn't work on OSX
+        elif sys.platform.startswith('linux'):
+            env.setBool('sound', PLAY_SOUND)
+    env.setBool('display_screen', DISPLAY_SCREEN)
     env.loadROM(os.path.join('roms', ROM_FILE_NAME))
+
     return env
 
 
