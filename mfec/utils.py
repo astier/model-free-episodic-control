@@ -7,6 +7,7 @@ import os
 
 # TODO improve output and stats
 # TODO are there libraries for this?
+# TODO output training time
 class Utils(object):
 
     def __init__(self, results_dir):
@@ -44,6 +45,7 @@ class Utils(object):
         self.epoch_episodes = 0
         self.epoch_reward = 0
 
+    # TODO keep the best agent and the newest
     def save_agent(self, epoch, agent):
         """Save the agents QEC-table in a file."""
         qec_prefix = os.path.join(self.results_dir, 'qec_')

@@ -22,7 +22,6 @@ class MFECAgent(object):
         self.epsilon_min = epsilon_min
         self.epsilon_rate = self._compute_epsilon_rate(epsilon_decay)
 
-    # TODO does it work like in the paper?
     def _compute_epsilon_rate(self, epsilon_decay):
         if epsilon_decay:
             return (self.epsilon - self.epsilon_min) / epsilon_decay
@@ -58,7 +57,7 @@ class MFECAgent(object):
         """Store (state, action, reward) tuple in memory."""
         self.memory.append(
             {'state': self.current_state, 'action': self.current_action,
-             'reward': reward, 'time_steps': self.current_time})
+             'reward': reward, 'time_step': self.current_time})
 
     # TODO batch-update
     def train(self):
@@ -68,4 +67,4 @@ class MFECAgent(object):
             experience = self.memory.pop()
             value = value * self.discount + experience['reward']
             self.qec.update(experience['state'], experience['action'], value,
-                            experience['time_steps'])
+                            experience['time_step'])

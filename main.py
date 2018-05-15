@@ -6,35 +6,36 @@ import sys
 import time
 
 import numpy as np
-import scipy.misc
 from ale_python_interface import ALEInterface  # TODO ale vs gym
+from scipy.misc.pilutil import imresize
 
 from mfec.agent import MFECAgent
 from mfec.qec import QEC
 from mfec.utils import Utils
 
 # TODO load parameters as json-config
+
+# TRAINING- AND HYPERPARAMETERS
+
 ROM_FILE_NAME = 'qbert.bin'
-QEC_TABLE_PATH = ''
+QEC_TABLE_PATH = 'example_agent.pkl'
 SAVE_QEC_TABLE = True
 
-DISPLAY_SCREEN = False
-PLAY_SOUND = False
+DISPLAY_SCREEN = True
+PLAY_SOUND = False  # Note: Sound doesn't work on OSX anyway
 
 SEED = 42
 EPOCHS = 20
-FRAMES_PER_EPOCH = 20000
+FRAMES_PER_EPOCH = 50000
 
-ACTION_BUFFER_SIZE = 1000000  # 1000000
+ACTION_BUFFER_SIZE = 1000000
 FRAMES_PER_ACTION = 4
-# TODO LIVE_LOSE_PENALTY = 25
-
 K = 11
 DISCOUNT = 1.
 
-EPSILON = 1.  # TODO not in the paper
-EPSILON_MIN = .005
-EPSILON_DECAY = 10000
+EPSILON = .005
+EPSILON_MIN = EPSILON
+EPSILON_DECAY = 0
 
 SCALE_WIDTH = 84
 SCALE_HEIGHT = 84
@@ -63,7 +64,6 @@ def create_utils():
     return Utils(results_dir)
 
 
-# TODO check more variables
 def create_ale():
     env = ALEInterface()
     env.setInt('random_seed', SEED)
@@ -100,13 +100,14 @@ def create_agent():
                      EPSILON_DECAY)
 
 
+# TODO move all results related stuff to utils
 def run():
     frames_played = 0
     for epoch in range(1, EPOCHS + 1):  # TODO seed loop
         frames_left = FRAMES_PER_EPOCH
 
         while frames_left > 0:
-            logging.info(  # TODO improve stats-output
+            logging.info(
                 'Epoch: {}\tFrames: {}/{}'.format(epoch, frames_played,
                                                   FRAMES_PER_EPOCH * EPOCHS))
             frames_episode = run_episode()
@@ -122,7 +123,7 @@ def run_episode():
     episode_reward = 0
     episode_frames = 0
 
-    # TODO terminal if dead?
+    # TODO stop if dead?
     while not ale.game_over():
         # TODO observation should be the last 4 frames?
         observation = get_observation()
@@ -143,7 +144,7 @@ def run_episode():
 # TODO make modular and implement VAE
 def get_observation():
     observation = ale.getScreenGrayscale()[:, :, 0]
-    return scipy.misc.imresize(observation, size=(SCALE_WIDTH, SCALE_HEIGHT))
+    return imresize(observation, size=(SCALE_WIDTH, SCALE_HEIGHT))
 
 
 if __name__ == "__main__":
