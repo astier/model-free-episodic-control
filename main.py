@@ -17,7 +17,7 @@ from mfec.utils import Utils
 
 # TRAINING-PARAMETERS
 ROM_FILE_NAME = 'qbert.bin'
-QEC_TABLE_PATH = 'example_agent.pkl'
+QEC_TABLE_PATH = 'example_agent_rambo.pkl'
 SAVE_QEC_TABLE = True
 
 DISPLAY_SCREEN = True

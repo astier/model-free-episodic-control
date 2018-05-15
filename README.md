@@ -37,11 +37,11 @@ Navigate into to the projects top folder and execute:
 source activate mfec
 python main.py
 ```
-The program should load a pretrained MFEC-Agent and show a display where you can watch the MFEC-Agent play the atari-game _Q*Bert_ (in the first level he's bad but gets better in the next two). Some information should be printed regularly on the terminal like the average reward he got in a certain episode. After every epoch, the agent's results are stored in a results directory. Also, the agents QEC-table is stored there after every epoch as a file with the extension *.pkl* which latter can be used to load the agent back into memory.
+The program should load a pretrained MFEC-Agent and show a display where you can watch the MFEC-Agent play the atari-game _Q*Bert_. Some information should be printed regularly on the terminal like the average reward he got in a certain episode. After every epoch, the agent's results are stored in a results directory. Also, the agents QEC-table is stored there after every epoch as a file with the extension *.pkl* which latter can be used to load the agent back into memory.
 
 ## Train your first MFEC-Agent to be Combat-Ready
 To train your own agent from scratch you simply have to change the variable *QEC_TABLE_PATH* which you can find in the *main.py* file from this:
-> QEC_TABLE_PATH = 'example_agent.pkl'
+> QEC_TABLE_PATH = 'example_agent_rambo.pkl'
 
 to this:
 > QEC_TABLE_PATH = ''
@@ -83,4 +83,3 @@ You can find all kinds of roms for example here:
 - VAE is not implemented. Only random projection.
 - Currently, the algorithm might still do not work exactly like in the paper (I'm working on it tho').
 - The agent is trained on a CPU and not GPU.
-
