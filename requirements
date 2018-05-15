@@ -1,0 +1,6 @@
+python=2*
+numpy
+scipy
+scikit-learn
+Pillow
+
