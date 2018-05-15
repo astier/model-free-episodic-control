@@ -59,7 +59,7 @@ class ActionBuffer(object):
         if self._tree:
             neighbor = self._tree.query([state])[1][0][0]
             # TODO experiment with rtol and atol
-            if np.allclose(self.states[neighbor], state):
+            if np.allclose(self.states[neighbor], state):  # TODO paper?
                 return neighbor
         return None
 

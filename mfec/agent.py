@@ -52,7 +52,7 @@ class MFECAgent(object):
             for action in self.actions]
         best_value = np.max(action_values)
         best_actions = np.argwhere(action_values == best_value).flatten()
-        return np.random.choice(best_actions)
+        return np.random.choice(best_actions)  # TODO paper?
 
     def receive_reward(self, reward):
         """Store (state, action, reward) tuple in memory."""

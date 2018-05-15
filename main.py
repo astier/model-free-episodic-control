@@ -32,7 +32,7 @@ FRAMES_PER_ACTION = 4
 K = 11
 DISCOUNT = 1.
 
-EPSILON = 1.
+EPSILON = 1.  # TODO not in the paper
 EPSILON_MIN = .005
 EPSILON_DECAY = 10000
 
@@ -68,7 +68,7 @@ def create_ale():
     env = ALEInterface()
     env.setInt('random_seed', SEED)
     env.setFloat('repeat_action_probability', 0.)  # DON'T TURN IT ON!
-    env.setBool('color_averaging', True)  # TODO compare to max
+    env.setBool('color_averaging', True)  # TODO compare to max + paper?
 
     if DISPLAY_SCREEN:
         if sys.platform == 'darwin':
@@ -102,7 +102,7 @@ def create_agent():
 
 def run():
     frames_played = 0
-    for epoch in range(1, EPOCHS + 1):
+    for epoch in range(1, EPOCHS + 1):  # TODO seed loop
         frames_left = FRAMES_PER_EPOCH
 
         while frames_left > 0:
