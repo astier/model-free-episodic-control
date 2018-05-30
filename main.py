@@ -1,37 +1,34 @@
 #!/usr/bin/env python2
 
-import logging
 import os
 import sys
-import time
 
 import numpy as np
-from ale_python_interface import ALEInterface  # TODO ale vs gym
+from ale_python_interface import ALEInterface  # TODO gym
 from scipy.misc.pilutil import imresize
 
 from mfec.agent import MFECAgent
 from mfec.qec import QEC
 from mfec.utils import Utils
 
-# TODO load parameters as json-config
-
+# TODO store parameters in json-file
 # TRAINING-PARAMETERS
 ROM_FILE_NAME = 'qbert.bin'
-QEC_TABLE_PATH = 'example_agent_rambo.pkl'
-SAVE_QEC_TABLE = True
+AGENT_PATH = 'example_agent_rambo.pkl'
+SAVE_AGENT = True
 
-DISPLAY_SCREEN = True
+DISPLAY_SCREEN = False
 PLAY_SOUND = False  # Note: Sound doesn't work on OSX anyway
 
 SEED = 42
 EPOCHS = 20
-FRAMES_PER_EPOCH = 50000
+FRAMES_PER_EPOCH = 20000
 
 # HYPERPARAMETERS
 ACTION_BUFFER_SIZE = 1000000
 FRAMES_PER_ACTION = 4
 K = 11
-DISCOUNT = 1.
+DISCOUNT = 1
 
 EPSILON = .005
 EPSILON_MIN = .005
@@ -48,27 +45,18 @@ utils = None
 
 def main():
     global utils, ale, agent
-    logging.basicConfig(level=logging.INFO)
     np.random.seed(SEED)
-    utils = create_utils()
+    utils = Utils(ROM_FILE_NAME, FRAMES_PER_EPOCH, EPOCHS * FRAMES_PER_EPOCH)
     ale = create_ale()
     agent = create_agent()
     run()
 
 
-def create_utils():
-    execution_time = time.strftime("_%m-%d-%H-%M-%S", time.gmtime())
-    result_dir = ROM_FILE_NAME.split('.')[0] + execution_time
-    results_dir = os.path.join('results', result_dir)
-    os.makedirs(results_dir)
-    return Utils(results_dir)
-
-
 def create_ale():
     env = ALEInterface()
     env.setInt('random_seed', SEED)
-    env.setFloat('repeat_action_probability', 0.)  # DON'T TURN IT ON!
-    env.setBool('color_averaging', True)  # TODO compare to max + paper?
+    env.setFloat('repeat_action_probability', 0)  # DON'T TURN IT ON!
+    env.setBool('color_averaging', True)  # TODO paper?
 
     if DISPLAY_SCREEN:
         if sys.platform == 'darwin':
@@ -86,11 +74,10 @@ def create_ale():
 def create_agent():
     actions = range(len(ale.getMinimalActionSet()))
 
-    if QEC_TABLE_PATH:
-        qec = utils.load_agent(QEC_TABLE_PATH)
+    if AGENT_PATH:
+        qec = utils.load_agent(AGENT_PATH)
 
     else:
-        # TODO test different projections and store the best
         projection = np.random.randn(STATE_DIMENSION,
                                      SCALE_HEIGHT * SCALE_WIDTH).astype(
             np.float32)
@@ -100,35 +87,28 @@ def create_agent():
                      EPSILON_DECAY)
 
 
-# TODO move all results related stuff to utils
 def run():
-    frames_played = 0
-    for epoch in range(1, EPOCHS + 1):  # TODO seed loop
+    for epoch in range(1, EPOCHS + 1):
         frames_left = FRAMES_PER_EPOCH
 
         while frames_left > 0:
-            logging.info(
-                'Epoch: {}\tFrames: {}/{}'.format(epoch, frames_played,
-                                                  FRAMES_PER_EPOCH * EPOCHS))
-            frames_episode = run_episode()
-            frames_played += frames_episode
-            frames_left -= frames_episode
+            episode_frames, episode_reward = run_episode()
+            frames_left -= episode_frames
+            utils.end_episode(episode_frames, episode_reward)
 
-        utils.save_results(epoch)
-        if SAVE_QEC_TABLE:
-            utils.save_agent(epoch, agent)
+        utils.end_epoch()
+        if SAVE_AGENT:
+            utils.save_agent(agent)
 
 
 def run_episode():
-    episode_reward = 0
     episode_frames = 0
+    episode_reward = 0
 
-    # TODO stop if dead?
+    # TODO stop if dead
     while not ale.game_over():
-        # TODO observation should be the last 4 frames?
         observation = get_observation()
         action = agent.act(observation)
-        # TODO stop if dead
         reward = sum([ale.act(action) for _ in range(FRAMES_PER_ACTION)])
 
         agent.receive_reward(reward)
@@ -137,11 +117,9 @@ def run_episode():
 
     agent.train()
     ale.reset_game()
-    utils.update_results(episode_reward, episode_frames)
-    return episode_frames
+    return episode_frames, episode_reward
 
 
-# TODO make modular and implement VAE
 def get_observation():
     observation = ale.getScreenGrayscale()[:, :, 0]
     return imresize(observation, size=(SCALE_WIDTH, SCALE_HEIGHT))
