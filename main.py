@@ -11,8 +11,8 @@ from mfec.agent import MFECAgent
 from mfec.qec import QEC
 from mfec.utils import Utils
 
-# TODO store parameters in json-file
 # TRAINING-PARAMETERS
+# TODO store parameters in json-file
 ROM_FILE_NAME = 'qbert.bin'
 AGENT_PATH = 'example_agent_rambo.pkl'
 SAVE_AGENT = True
@@ -20,19 +20,16 @@ SAVE_AGENT = True
 DISPLAY_SCREEN = False
 PLAY_SOUND = False  # Note: Sound doesn't work on OSX anyway
 
-SEED = 42
-EPOCHS = 20
-FRAMES_PER_EPOCH = 20000
+EPOCHS = 2
+FRAMES_PER_EPOCH = 10000
+SEED = None
 
 # HYPERPARAMETERS
 ACTION_BUFFER_SIZE = 1000000
 FRAMES_PER_ACTION = 4
 K = 11
 DISCOUNT = 1
-
 EPSILON = .005
-EPSILON_MIN = .005
-EPSILON_DECAY = 0
 
 SCALE_WIDTH = 84
 SCALE_HEIGHT = 84
@@ -54,7 +51,7 @@ def main():
 
 def create_ale():
     env = ALEInterface()
-    env.setInt('random_seed', SEED)
+    env.setInt('random_seed', np.random.randint(0, 1000000))
     env.setFloat('repeat_action_probability', 0)  # DON'T TURN IT ON!
     env.setBool('color_averaging', True)  # TODO paper?
 
@@ -83,8 +80,7 @@ def create_agent():
             np.float32)
         qec = QEC(actions, ACTION_BUFFER_SIZE, K, projection)
 
-    return MFECAgent(qec, DISCOUNT, actions, EPSILON, EPSILON_MIN,
-                     EPSILON_DECAY)
+    return MFECAgent(qec, DISCOUNT, actions, EPSILON)
 
 
 def run():
@@ -105,10 +101,10 @@ def run_episode():
     episode_frames = 0
     episode_reward = 0
 
-    # TODO stop if dead
     while not ale.game_over():
         observation = get_observation()
         action = agent.act(observation)
+        # TODO stop if dead
         reward = sum([ale.act(action) for _ in range(FRAMES_PER_ACTION)])
 
         agent.receive_reward(reward)
@@ -116,6 +112,7 @@ def run_episode():
         episode_frames += FRAMES_PER_ACTION
 
     agent.train()
+    ale.setInt('random_seed', np.random.randint(0, 1000000))
     ale.reset_game()
     return episode_frames, episode_reward
 

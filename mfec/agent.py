@@ -7,8 +7,7 @@ import numpy as np
 # TODO use some common agent-interface
 class MFECAgent(object):
 
-    def __init__(self, qec, discount, actions, epsilon, epsilon_min,
-                 epsilon_decay):
+    def __init__(self, qec, discount, actions, epsilon):
         self.actions = actions
         self.qec = qec
         self.memory = []
@@ -19,19 +18,11 @@ class MFECAgent(object):
 
         self.discount = discount
         self.epsilon = epsilon
-        self.epsilon_min = epsilon_min
-        self.epsilon_rate = self._compute_epsilon_rate(epsilon_decay)
-
-    def _compute_epsilon_rate(self, epsilon_decay):
-        if epsilon_decay:
-            return (self.epsilon - self.epsilon_min) / epsilon_decay
-        return 0
 
     def act(self, observation):
         """Choose an action for the given observation."""
         self.current_state = self.qec.project(observation)
         self.current_time = time.clock()
-        self.epsilon = max(self.epsilon_min, self.epsilon - self.epsilon_rate)
 
         # Exploitation
         if np.random.rand() > self.epsilon:
