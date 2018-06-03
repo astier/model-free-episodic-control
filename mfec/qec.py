@@ -1,18 +1,18 @@
 #!/usr/bin/env python2
 
 import numpy as np
-from sklearn.neighbors.kd_tree import KDTree  # TODO pyflann?? paper? others?
+from sklearn.neighbors.kd_tree import KDTree  # TODO pyflann?? paper?
 
 
 class QEC(object):
 
     def __init__(self, actions, buffer_size, k, projection):
         self.buffers = tuple([ActionBuffer(buffer_size) for _ in actions])
-        self._projection = projection
+        self.projection = projection
         self.k = k
 
     def project(self, observation):
-        return np.dot(self._projection, observation.flatten())
+        return np.dot(self.projection, observation.flatten())
 
     def estimate(self, state, action, time_step):
         a_buffer = self.buffers[action]
@@ -58,7 +58,6 @@ class ActionBuffer(object):
     def find_state(self, state):
         if self._tree:
             neighbor = self._tree.query([state])[1][0][0]
-            # TODO experiment with rtol and atol
             if np.allclose(self.states[neighbor], state):  # TODO paper?
                 return neighbor
         return None
@@ -80,7 +79,6 @@ class ActionBuffer(object):
         # memory ~ n_samples / leaf_size, default_leaf_size=40
         self._tree = KDTree(self.states)
 
-    # TODO VQ/mean/prototypes?
     def replace(self, state, value, time_step, index):
         self.states[index] = state
         self.values[index] = value

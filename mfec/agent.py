@@ -1,37 +1,54 @@
 #!/usr/bin/env python2
 
+import cPickle
 import time
+
 import numpy as np
+from scipy.misc.pilutil import imresize
+
+from qec import QEC
 
 
 # TODO use some common agent-interface
 class MFECAgent(object):
 
-    def __init__(self, qec, discount, actions, epsilon):
+    def __init__(self, qec_path, buffer_size, k, discount, epsilon, width,
+                 height, state_dimension, actions):
+        self.discount = discount
+        self.epsilon = epsilon
+
+        self.scale_size = (width, height)
         self.actions = actions
-        self.qec = qec
         self.memory = []
 
         self.current_state = None
         self.current_action = None
         self.current_time = None
 
-        self.discount = discount
-        self.epsilon = epsilon
+        self.qec = self._init_qec(qec_path, buffer_size, k, width, height,
+                                  state_dimension)
+
+    def _init_qec(self, qec_path, size, k, width, height, dimension):
+        if qec_path:
+            return cPickle.load(open(qec_path, 'r'))
+        projection = np.random.randn(dimension, width * height).astype(
+            np.float32)
+        return QEC(self.actions, size, k, projection)
 
     def act(self, observation):
         """Choose an action for the given observation."""
-        self.current_state = self.qec.project(observation)
+        self.current_state = self._process(observation)
         self.current_time = time.clock()
-
-        # Exploitation
         if np.random.rand() > self.epsilon:
             self.current_action = self._exploit()
-
-        # Exploration
         else:
             self.current_action = np.random.choice(self.actions)
         return self.current_action
+
+    def _process(self, observation):
+        gray_scale = np.mean(observation, axis=2)
+        rescaled = imresize(gray_scale, size=self.scale_size)
+        return self.qec.project(rescaled)
 
     def _exploit(self):
         """Determine the action with the highest Q-value. If multiple
@@ -42,7 +59,7 @@ class MFECAgent(object):
             for action in self.actions]
         best_value = np.max(action_values)
         best_actions = np.argwhere(action_values == best_value).flatten()
-        return np.random.choice(best_actions)  # TODO paper?
+        return np.random.choice(best_actions)
 
     def receive_reward(self, reward):
         """Store (state, action, reward) tuple in memory."""
