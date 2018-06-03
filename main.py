@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+import time
 
 import gym
 
@@ -9,7 +10,9 @@ from mfec.utils import Utils
 ENVIRONMENT = 'Qbert-v0'  # Check https://gym.openai.com/envs/#atari
 AGENT_PATH = ''
 SAVE_AGENT = True
-DISPLAY = False
+DISPLAY = True
+SLEEP = .04
+
 EPOCHS = 25
 FRAMES_PER_EPOCH = 40000
 
@@ -68,6 +71,7 @@ def run_episode():
 
         if DISPLAY:  # TODO slow down
             env.render()
+            time.sleep(SLEEP)
 
         action = agent.act(observation)
         observation, reward, done, _ = env.step(action)
