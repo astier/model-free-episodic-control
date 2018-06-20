@@ -6,13 +6,9 @@ from sklearn.neighbors.kd_tree import KDTree  # TODO pyflann?? paper?
 
 class QEC(object):
 
-    def __init__(self, actions, buffer_size, k, projection):
+    def __init__(self, actions, buffer_size, k):
         self.buffers = tuple([ActionBuffer(buffer_size) for _ in actions])
-        self.projection = projection
         self.k = k
-
-    def project(self, observation):
-        return np.dot(self.projection, observation.flatten())
 
     def estimate(self, state, action, time_step):
         a_buffer = self.buffers[action]

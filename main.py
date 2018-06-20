@@ -15,7 +15,7 @@ RENDER = False
 RENDER_SLEEP = .04
 
 SEED = 42
-EPOCHS = 25
+EPOCHS = 1
 FRAMES_PER_EPOCH = 40000
 
 ACTION_BUFFER_SIZE = 1000000
@@ -49,7 +49,7 @@ def run_episode():
     episode_frames = 0
     episode_reward = 0
 
-    # env.seed(random.randint(0, 1000000))
+    env.seed(random.randint(0, 1000000))
     observation = env.reset()
     done = False
 
@@ -74,10 +74,6 @@ if __name__ == "__main__":
     random.seed(SEED)
     env = gym.make(ENVIRONMENT)
     env.env.frameskip = FRAMES_PER_ACTION
-
-    # TODO REMOVE
-    env.seed(SEED)
-
     agent = MFECAgent(AGENT_PATH, ACTION_BUFFER_SIZE, K, DISCOUNT, EPSILON,
                       SCALE_WIDTH, SCALE_HEIGHT, STATE_DIMENSION,
                       range(env.action_space.n), SEED)
