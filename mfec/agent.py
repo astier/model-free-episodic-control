@@ -13,7 +13,7 @@ from qec import QEC
 class MFECAgent(object):
 
     def __init__(self, qec_path, buffer_size, k, discount, epsilon, width,
-                 height, state_dimension, actions):
+                 height, state_dimension, actions, seed):
         self.discount = discount
         self.epsilon = epsilon
 
@@ -25,13 +25,15 @@ class MFECAgent(object):
         self.current_action = None
         self.current_time = None
 
+        self.rng = np.random.RandomState(seed)
+
         self.qec = self._init_qec(qec_path, buffer_size, k, width, height,
                                   state_dimension)
 
     def _init_qec(self, qec_path, size, k, width, height, dimension):
         if qec_path:
             return cPickle.load(open(qec_path, 'r'))
-        projection = np.random.randn(dimension, width * height).astype(
+        projection = self.rng.randn(dimension, width * height).astype(
             np.float32)
         return QEC(self.actions, size, k, projection)
 
@@ -39,10 +41,10 @@ class MFECAgent(object):
         """Choose an action for the given observation."""
         self.current_state = self._process(observation)
         self.current_time = time.clock()
-        if np.random.rand() > self.epsilon:
+        if self.rng.rand() > self.epsilon:
             self.current_action = self._exploit()
         else:
-            self.current_action = np.random.choice(self.actions)
+            self.current_action = self.rng.choice(self.actions)
         return self.current_action
 
     def _process(self, observation):
@@ -59,7 +61,7 @@ class MFECAgent(object):
             for action in self.actions]
         best_value = np.max(action_values)
         best_actions = np.argwhere(action_values == best_value).flatten()
-        return np.random.choice(best_actions)
+        return self.rng.choice(best_actions)
 
     def receive_reward(self, reward):
         """Store (state, action, reward) tuple in memory."""
