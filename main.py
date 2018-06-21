@@ -4,6 +4,8 @@ import random
 import time
 
 import gym
+import numpy as np
+from scipy.misc.pilutil import imresize
 
 from mfec.agent import MFECAgent
 from mfec.utils import Utils
@@ -60,7 +62,7 @@ def run_episode():
             env.render()
             time.sleep(RENDER_SLEEP)
 
-        action = agent.act(observation)
+        action = agent.act(preprocess(observation))
         observation, reward, done, _ = env.step(action)
         agent.receive_reward(reward)
 
@@ -69,6 +71,11 @@ def run_episode():
 
     agent.train()
     return episode_frames, episode_reward
+
+
+def preprocess(observation):
+    gray_scale = np.mean(observation, axis=2)
+    return imresize(gray_scale, size=(SCALE_HEIGHT, SCALE_WIDTH))
 
 
 if __name__ == "__main__":

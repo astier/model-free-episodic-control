@@ -4,7 +4,6 @@ import cPickle
 import time
 
 import numpy as np
-from scipy.misc.pilutil import imresize
 
 from qec import QEC
 
@@ -36,41 +35,26 @@ class MFECAgent(object):
         return QEC(self.actions, buffer_size, k)
 
     def act(self, observation):
-        """Choose an action for the given observation."""
-        self.current_state = self._project(observation)
+        self.current_state = np.dot(self.projection, observation.flatten())
         self.current_time = time.clock()
-        if self.rs.rand() > self.epsilon:
-            self.current_action = self._exploit()
-        else:
+        if self.rs.random_sample() < self.epsilon:
             self.current_action = self.rs.choice(self.actions)
+        else:
+            self.current_action = self._exploit()
         return self.current_action
 
-    def _project(self, observation):
-        gray_scale = np.mean(observation, axis=2)
-        rescaled = imresize(gray_scale, size=self.scale_size)
-        projection = np.dot(self.projection, rescaled.flatten())
-        return projection
-
     def _exploit(self):
-        """Determine the action with the highest Q-value. If multiple
-        actions with the the highest value exist then choose from this set
-        of actions randomly."""
-        action_values = [
+        values = [
             self.qec.estimate(self.current_state, action, self.current_time)
             for action in self.actions]
-        best_value = np.max(action_values)
-        best_actions = np.argwhere(action_values == best_value).flatten()
-        return self.rs.choice(best_actions)
+        return self.rs.choice(np.argwhere(values == np.max(values)).flatten())
 
     def receive_reward(self, reward):
-        """Store (state, action, reward) tuple in memory."""
         self.memory.append(
             {'state': self.current_state, 'action': self.current_action,
              'reward': reward, 'time_step': self.current_time})
 
-    # TODO batch-update
     def train(self):
-        """Update Q-Values via backward-replay."""
         value = .0
         for _ in range(len(self.memory)):
             experience = self.memory.pop()
