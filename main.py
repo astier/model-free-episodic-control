@@ -18,11 +18,12 @@ RENDER = False
 RENDER_SLEEP = .04
 
 SEED = 42
-EPOCHS = 1
+EPOCHS = 2
 FRAMES_PER_EPOCH = 40000
 
 ACTION_BUFFER_SIZE = 1000000
-FRAMES_PER_ACTION = 4
+FRAMESKIP = 4
+REPEAT_ACTION_PROBABILITY = .0
 K = 11
 DISCOUNT = 1
 EPSILON = .005
@@ -36,7 +37,6 @@ agent = None
 utils = None
 
 
-# TODO 30 initial states
 def run_algorithm():
     for _ in range(EPOCHS):
         frames_left = FRAMES_PER_EPOCH
@@ -48,7 +48,7 @@ def run_algorithm():
     env.close()
 
 
-def run_episode():
+def run_episode():  # TODO paper 30 initial states?
     episode_frames = 0
     episode_reward = 0
 
@@ -67,24 +67,29 @@ def run_episode():
         agent.receive_reward(reward)
 
         episode_reward += reward
-        episode_frames += FRAMES_PER_ACTION
+        episode_frames += FRAMESKIP
 
     agent.train()
     return episode_frames, episode_reward
 
 
 def preprocess(observation):
-    gray_scale = np.mean(observation, axis=2)
-    return imresize(gray_scale, size=(SCALE_HEIGHT, SCALE_WIDTH))
+    grey = np.mean(observation, axis=2)
+    return imresize(grey, size=(SCALE_HEIGHT, SCALE_WIDTH))
 
 
 if __name__ == "__main__":
     random.seed(SEED)
+
     env = gym.make(ENVIRONMENT)
-    env.env.frameskip = FRAMES_PER_ACTION
+    env.env.frameskip = FRAMESKIP
+    env.env.ale.setFloat('repeat_action_probability',
+                         REPEAT_ACTION_PROBABILITY)
+
     agent = MFECAgent(AGENT_PATH, ACTION_BUFFER_SIZE, K, DISCOUNT, EPSILON,
                       SCALE_HEIGHT, SCALE_WIDTH, STATE_DIMENSION,
                       range(env.action_space.n), SEED)
     utils = Utils(ENVIRONMENT, FRAMES_PER_EPOCH, EPOCHS * FRAMES_PER_EPOCH,
                   SAVE_AGENT, agent)
+
     run_algorithm()
