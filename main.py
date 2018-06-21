@@ -11,18 +11,18 @@ from mfec.agent import MFECAgent
 from mfec.utils import Utils
 
 # TODO store parameters in json-file
-ENVIRONMENT = 'Qbert-v0'  # Check https://gym.openai.com/envs/#atari
+ENVIRONMENT = 'MsPacman-v0'  # Check https://gym.openai.com/envs/#atari
 AGENT_PATH = ''
 SAVE_AGENT = True
 RENDER = False
 RENDER_SLEEP = .04
 
 SEED = 42
-EPOCHS = 2
+EPOCHS = 50
 FRAMES_PER_EPOCH = 40000
 
 ACTION_BUFFER_SIZE = 1000000
-FRAMESKIP = 4
+FRAMESKIP = 4  # TODO test gyms setting (2, 5)
 REPEAT_ACTION_PROBABILITY = .0
 K = 11
 DISCOUNT = 1

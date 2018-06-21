@@ -54,7 +54,7 @@ class ActionBuffer(object):
     def find_state(self, state):
         if self._tree:
             neighbor = self._tree.query([state])[1][0][0]
-            if np.allclose(self.states[neighbor], state):  # TODO paper?
+            if np.allclose(self.states[neighbor], state):  # TODO paper? TEST
                 return neighbor
         return None
 
