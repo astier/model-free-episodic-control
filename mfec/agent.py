@@ -12,36 +12,37 @@ from qec import QEC
 # TODO use some common agent-interface
 class MFECAgent(object):
 
-    def __init__(self, qec_path, buffer_size, k, discount, epsilon, width,
-                 height, state_dimension, actions, seed):
-        self.rng = np.random.RandomState(seed)
+    def __init__(self, qec_path, buffer_size, k, discount, epsilon, height,
+                 width, state_dimension, actions, seed):
+        self.rs = np.random.RandomState(seed)
+
         self.discount = discount
         self.epsilon = epsilon
         self.actions = actions
-        self.scale_size = (width, height)
+        self.scale_size = (height, width)
 
         self.memory = []
         self.qec = self._init_qec(qec_path, buffer_size, k)
-        self.projection = self.rng.randn(state_dimension,
-                                         width * height).astype(np.float32)
+        self.projection = self.rs.randn(state_dimension,
+                                        height * width).astype(np.float32)
 
         self.current_state = None
         self.current_action = None
         self.current_time = None
 
-    def _init_qec(self, qec_path, size, k):
+    def _init_qec(self, qec_path, buffer_size, k):
         if qec_path:
             return cPickle.load(open(qec_path, 'r'))
-        return QEC(self.actions, size, k)
+        return QEC(self.actions, buffer_size, k)
 
     def act(self, observation):
         """Choose an action for the given observation."""
         self.current_state = self._project(observation)
         self.current_time = time.clock()
-        if self.rng.rand() > self.epsilon:
+        if self.rs.rand() > self.epsilon:
             self.current_action = self._exploit()
         else:
-            self.current_action = self.rng.choice(self.actions)
+            self.current_action = self.rs.choice(self.actions)
         return self.current_action
 
     def _project(self, observation):
@@ -59,7 +60,7 @@ class MFECAgent(object):
             for action in self.actions]
         best_value = np.max(action_values)
         best_actions = np.argwhere(action_values == best_value).flatten()
-        return self.rng.choice(best_actions)
+        return self.rs.choice(best_actions)
 
     def receive_reward(self, reward):
         """Store (state, action, reward) tuple in memory."""

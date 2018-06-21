@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+
 import random
 import time
 
@@ -24,8 +25,8 @@ K = 11
 DISCOUNT = 1
 EPSILON = .005
 
-SCALE_WIDTH = 84
 SCALE_HEIGHT = 84
+SCALE_WIDTH = 84
 STATE_DIMENSION = 64
 
 env = None
@@ -75,7 +76,7 @@ if __name__ == "__main__":
     env = gym.make(ENVIRONMENT)
     env.env.frameskip = FRAMES_PER_ACTION
     agent = MFECAgent(AGENT_PATH, ACTION_BUFFER_SIZE, K, DISCOUNT, EPSILON,
-                      SCALE_WIDTH, SCALE_HEIGHT, STATE_DIMENSION,
+                      SCALE_HEIGHT, SCALE_WIDTH, STATE_DIMENSION,
                       range(env.action_space.n), SEED)
     utils = Utils(ENVIRONMENT, FRAMES_PER_EPOCH, EPOCHS * FRAMES_PER_EPOCH,
                   SAVE_AGENT, agent)
