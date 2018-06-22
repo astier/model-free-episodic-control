@@ -1,7 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
-import cPickle  # TODO json?
 import os
+import pickle
 import time
 
 
@@ -86,9 +86,8 @@ class Utils(object):
         qec_prefix = os.path.join(self.results_dir, 'qec_')
 
         # Save qec-table
-        qec = open(qec_prefix + str(self.epoch) + '.pkl', 'w')
-        cPickle.dump(self.agent.qec, qec, 2)
-        qec.close()
+        with open(qec_prefix + str(self.epoch) + '.pkl', 'wb') as qec_file:
+            pickle.dump(self.agent.qec, qec_file, 2)
 
         # Remove old qec-table to save storage space
         qec_old = qec_prefix + str(self.epoch - 1) + '.pkl'

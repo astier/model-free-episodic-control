@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 import random
 import time
@@ -22,7 +22,7 @@ EPOCHS = 25
 FRAMES_PER_EPOCH = 40000
 
 ACTION_BUFFER_SIZE = 1000000
-FRAMESKIP = 4  # TODO test gyms setting (2, 5)
+FRAMESKIP = 4
 REPEAT_ACTION_PROBABILITY = .0
 K = 11
 DISCOUNT = 1
@@ -54,8 +54,8 @@ def run_episode():  # TODO paper 30 initial states?
 
     env.seed(random.randint(0, 1000000))
     observation = env.reset()
-    done = False
 
+    done = False
     while not done:
 
         if RENDER:
@@ -64,8 +64,8 @@ def run_episode():  # TODO paper 30 initial states?
 
         action = agent.act(preprocess(observation))
         observation, reward, done, _ = env.step(action)
-        agent.receive_reward(reward)
 
+        agent.receive_reward(reward)
         episode_reward += reward
         episode_frames += FRAMESKIP
 
@@ -91,5 +91,4 @@ if __name__ == "__main__":
                       range(env.action_space.n), SEED)
     utils = Utils(ENVIRONMENT, FRAMES_PER_EPOCH, EPOCHS * FRAMES_PER_EPOCH,
                   SAVE_AGENT, agent)
-
     run_algorithm()

@@ -3,12 +3,12 @@
 ## Description
 Implementation of the **[Model-Free Episodic Control](http://arxiv.org/abs/1606.04460)** algorithm. This is a fork of the repository from **[sudeepraja](https://github.com/sudeepraja/Model-Free-Episodic-Control)**, whereas his work is a fork of the original work from **[ShibiHe](https://github.com/ShibiHe/Model-Free-Episodic-Control)**. This project is maintained by **[astier](https://github.com/astier/Model-Free-Episodic-Control)**. Feedback is appreciated.
 
-## Environment & Requirements Installation
-All dependencies can be found in the file *requirements* of this project. This includes:
-- Python 2
-- OpenAI Gym
+## Dependencies
+All dependencies can be found in the file *requirements*. The most important are:
+- Python 3
+- [OpenAI Gym](https://github.com/openai/gym)
 
-Before the program can be executed you shall install a separated conda environment with the required dependencies. This can be done by first navigating to the directory where you would like to download this project and then executing the following steps:
+I would recommend to install them in a separate conda environment. This can be done by first navigating to the directory where you would like to download this project and then executing the following steps:
 ```
 git clone https://github.com/astier/Model-Free-Episodic-Control.git
 cd Model-Free-Episodic-Control
@@ -33,10 +33,7 @@ To train your own agent from scratch you simply have to change the variable *QEC
 to this:
 > QEC_TABLE_PATH = ''
 
-It might also be advisable to turn off the display so the training will be faster. Just change the variable *DISPLAY_SCREEN* from this:
-> DISPLAY_SCREEN = True
-
-to this:
+It might also be advisable to turn off the display so the training will be faster. Just set the variable *DISPLAY_SCREEN* to *False*:
 > DISPLAY_SCREEN = False
 
 That's it. Now you can track the agent's performance which will be printed regularly in the terminal. Remember the agent is saved to the hard-disk after every epoch and will be called something like *qec_num.pkl*. When you cancel the training before its finished you can continue later on by loading your trained agent back into memory. Just change the variable *QEC_TABLE_PATH* from this:
@@ -44,8 +41,6 @@ That's it. Now you can track the agent's performance which will be printed regul
 
 to this:
 > QEC_TABLE_PATH = 'path_to_your_killer_agent_aka_terminator'
-
-Do I have to tell you how to turn the display on so you can see your own MFEC-Agent live in action?
 
 ## Training- and Hyperparameters
 Every important aspect of the program like:
@@ -56,9 +51,9 @@ Every important aspect of the program like:
 - Training duration
 - etc.
 
-can be configured by a few variables which you can find and change in the file *main.py*. They are located on the top of the file and are written in UPPERCASE. The default settings are those of the paper.
+can be configured by a few variables which you can find on top of the file *main.py* and which are written in UPPERCASE. The default settings are those of the paper.
 
 ## Notes
 - VAE is not implemented. Only random projection.
 - Currently, the algorithm might still do not work exactly like in the paper (I'm working on it tho').
-- The agent is trained on a CPU and not GPU.
+- The agent is trained on a CPU.

@@ -1,11 +1,11 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
-import cPickle
+import pickle
 import time
 
 import numpy as np
 
-from qec import QEC
+from mfec.qec import QEC
 
 
 # TODO use some common agent-interface
@@ -31,7 +31,9 @@ class MFECAgent(object):
 
     def _init_qec(self, qec_path, buffer_size, k):
         if qec_path:
-            return cPickle.load(open(qec_path, 'r'))
+            with open(qec_path, 'rb') as qec_file:
+                qec = pickle.load(qec_file)
+                return qec
         return QEC(self.actions, buffer_size, k)
 
     def act(self, observation):

@@ -1,6 +1,6 @@
-python=2*
-numpy
-scipy
-scikit-learn
-Pillow
 cython
+numpy
+pillow
+python=3*
+scikit-learn
+scipy
