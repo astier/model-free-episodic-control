@@ -13,7 +13,7 @@ from mfec.utils import Utils
 
 # TODO store parameters in json-file
 ENVIRONMENT = 'Qbert-v0'  # More games at: https://gym.openai.com/envs/#atari
-AGENT_PATH = ''
+AGENT_PATH = 'results/Qbert-v0_06-23-20-08-29/agent.pkl'
 SAVE_AGENT = True
 RENDER = False
 RENDER_SLEEP = .04
@@ -87,6 +87,7 @@ def preprocess(observation):
 
 
 if __name__ == "__main__":
+    random.seed(SEED)
     env = gym.make(ENVIRONMENT)
     env.env.frameskip = FRAMESKIP
     env.env.ale.setFloat('repeat_action_probability',
@@ -102,9 +103,5 @@ if __name__ == "__main__":
     execution_time = time.strftime("_%m-%d-%H-%M-%S", time.gmtime())
     results_dir = os.path.join('results', ENVIRONMENT + execution_time)
     os.makedirs(os.path.join(results_dir))
-
-    utils = Utils(results_dir, FRAMES_PER_EPOCH, EPOCHS * FRAMES_PER_EPOCH,
-                  SAVE_AGENT, agent)
-
-    random.seed(SEED)
+    utils = Utils(results_dir, FRAMES_PER_EPOCH, EPOCHS * FRAMES_PER_EPOCH)
     run_algorithm()

@@ -6,13 +6,10 @@ import os.path
 # TODO library?
 class Utils:
 
-    def __init__(self, results_dir, frames_per_epoch, max_frames,
-                 store_agent, agent):
-        self.results_dir = results_dir
-        self.results_file = self._create_results_file()
-
-        self.agent = agent
-        self.store_agent = store_agent
+    def __init__(self, results_dir, frames_per_epoch, max_frames):
+        self.results_file = open(os.path.join(results_dir, 'results.csv'), 'w')
+        self.results_file.write(
+            "epoch, episodes, frames, reward_sum, reward_avg, reward_max\n")
 
         self.frames_per_epoch = frames_per_epoch
         self.max_frames = max_frames
@@ -23,13 +20,6 @@ class Utils:
         self.epoch_frames = 0
         self.epoch_reward_sum = 0
         self.epoch_reward_max = 0
-
-    def _create_results_file(self):
-        results_file_name = os.path.join(self.results_dir, 'results.csv')
-        results_file = open(results_file_name, 'w')
-        results_file.write("epoch, episodes, frames, reward_sum, "
-                           "reward_avg, reward_max\n")
-        return results_file
 
     def end_episode(self, episode_frames, episode_reward):
         """Should be always and only executed at the end of an episode."""
@@ -52,9 +42,7 @@ class Utils:
                    self.epoch_reward_sum,
                    round(self.epoch_reward_sum / self.epoch_episodes),
                    self.epoch_reward_max]
-
         self.results_file.write('{},{},{},{},{},{}\n'.format(*results))
-        self.results_file.flush()
 
         message = '\nEpoch: {}\tEpisodes: {}\tFrames: {}\tReward-Sum: {}\t' \
                   'Reward-Avg: {}\tReward-Max: {}\tTotal-Frames: {}/{}\n'

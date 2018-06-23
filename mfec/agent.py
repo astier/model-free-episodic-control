@@ -58,7 +58,6 @@ class MFECAgent:
                             experience['step'])
 
     def save(self, results_dir):
-        # TODO overwrites old agent?
         with open(os.path.join(results_dir, 'agent.pkl'), 'wb') as file:
             pickle.dump(self, file, 2)
 
