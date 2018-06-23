@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import random
 import time
 
@@ -18,8 +19,8 @@ RENDER = False
 RENDER_SLEEP = .04
 
 SEED = 42
-EPOCHS = 10
-FRAMES_PER_EPOCH = 100000
+EPOCHS = 2
+FRAMES_PER_EPOCH = 10000
 
 ACTION_BUFFER_SIZE = 1000000
 FRAMESKIP = 4
@@ -35,17 +36,23 @@ STATE_DIMENSION = 64
 env = None
 agent = None
 utils = None
+result_dir = None
 
 
 def run_algorithm():
     frames_left = 0
     for _ in range(EPOCHS):
+
         frames_left += FRAMES_PER_EPOCH
         while frames_left > 0:
             episode_frames, episode_reward = run_episode()
             frames_left -= episode_frames
             utils.end_episode(episode_frames, episode_reward)
+
         utils.end_epoch()
+        agent.save(results_dir)
+
+    utils.close()
     env.close()
 
 
@@ -63,7 +70,7 @@ def run_episode():  # TODO paper 30 initial states?
             env.render()
             time.sleep(RENDER_SLEEP)
 
-        action = agent.act(preprocess(observation))
+        action = agent.choose_action(preprocess(observation))
         observation, reward, done, _ = env.step(action)
         agent.receive_reward(reward)
 
@@ -80,14 +87,24 @@ def preprocess(observation):
 
 
 if __name__ == "__main__":
-    random.seed(SEED)
     env = gym.make(ENVIRONMENT)
     env.env.frameskip = FRAMESKIP
     env.env.ale.setFloat('repeat_action_probability',
                          REPEAT_ACTION_PROBABILITY)
-    agent = MFECAgent(AGENT_PATH, ACTION_BUFFER_SIZE, K, DISCOUNT, EPSILON,
-                      SCALE_HEIGHT, SCALE_WIDTH, STATE_DIMENSION,
-                      range(env.action_space.n), SEED)
-    utils = Utils(ENVIRONMENT, FRAMES_PER_EPOCH, EPOCHS * FRAMES_PER_EPOCH,
+
+    if AGENT_PATH:
+        agent = MFECAgent.load(AGENT_PATH)
+    else:
+        agent = MFECAgent(ACTION_BUFFER_SIZE, K, DISCOUNT, EPSILON,
+                          SCALE_HEIGHT, SCALE_WIDTH, STATE_DIMENSION,
+                          range(env.action_space.n), SEED)
+
+    execution_time = time.strftime("_%m-%d-%H-%M-%S", time.gmtime())
+    results_dir = os.path.join('results', ENVIRONMENT + execution_time)
+    os.makedirs(os.path.join(results_dir))
+
+    utils = Utils(results_dir, FRAMES_PER_EPOCH, EPOCHS * FRAMES_PER_EPOCH,
                   SAVE_AGENT, agent)
+
+    random.seed(SEED)
     run_algorithm()

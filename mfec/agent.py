@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
+import os.path
 import pickle
-import time
 
 import numpy as np
 
@@ -11,7 +11,7 @@ from mfec.qec import QEC
 # TODO use some common agent-interface
 class MFECAgent:
 
-    def __init__(self, qec_path, buffer_size, k, discount, epsilon, height,
+    def __init__(self, buffer_size, k, discount, epsilon, height,
                  width, state_dimension, actions, seed):
         self.rs = np.random.RandomState(seed)
 
@@ -21,25 +21,17 @@ class MFECAgent:
         self.scale_size = (height, width)
 
         self.memory = []
-        self.qec = self._init_qec(qec_path, buffer_size, k, state_dimension,
-                                  height * width)
+        self.qec = QEC(self.actions, buffer_size, k)
+        self.projection = self.rs.randn(state_dimension,
+                                        height * width).astype(np.float32)
 
         self.current_state = None
         self.current_action = None
-        self.current_time = None
+        self.current_step = 0
 
-    def _init_qec(self, qec_path, buffer_size, k, d0, d1):
-        if qec_path:
-            with open(qec_path, 'rb') as qec_file:
-                qec = pickle.load(qec_file)
-                return qec
-        # TODO test without float32
-        projection = self.rs.randn(d0, d1).astype(np.float32)
-        return QEC(self.actions, buffer_size, k, projection)
-
-    def act(self, observation):
-        self.current_state = self.qec.project(observation)
-        self.current_time = time.clock()
+    def choose_action(self, observation):
+        self.current_step += 1
+        self.current_state = np.dot(self.projection, observation.flatten())
         if self.rs.random_sample() < self.epsilon:
             self.current_action = self.rs.choice(self.actions)
         else:
@@ -48,14 +40,14 @@ class MFECAgent:
 
     def _exploit(self):
         values = [
-            self.qec.estimate(self.current_state, action, self.current_time)
+            self.qec.estimate(self.current_state, action, self.current_step)
             for action in self.actions]
         return self.rs.choice(np.argwhere(values == np.max(values)).flatten())
 
     def receive_reward(self, reward):
         self.memory.append(
             {'state': self.current_state, 'action': self.current_action,
-             'reward': reward, 'time_step': self.current_time})
+             'reward': reward, 'step': self.current_step})
 
     def train(self):
         value = .0
@@ -63,4 +55,14 @@ class MFECAgent:
             experience = self.memory.pop()
             value = value * self.discount + experience['reward']
             self.qec.update(experience['state'], experience['action'], value,
-                            experience['time_step'])
+                            experience['step'])
+
+    def save(self, results_dir):
+        # TODO overwrites old agent?
+        with open(os.path.join(results_dir, 'agent.pkl'), 'wb') as file:
+            pickle.dump(self, file, 2)
+
+    @staticmethod
+    def load(agent_path):
+        with open(agent_path, 'rb') as qec_file:
+            return pickle.load(qec_file)

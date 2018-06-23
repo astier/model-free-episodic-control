@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 
-import os
-import pickle
-import time
+import os.path
 
 
 # TODO library?
 class Utils:
 
-    def __init__(self, rom_file_name, frames_per_epoch, max_frames,
+    def __init__(self, results_dir, frames_per_epoch, max_frames,
                  store_agent, agent):
-        self.results_dir = self._create_results_dir(rom_file_name)
+        self.results_dir = results_dir
         self.results_file = self._create_results_file()
 
         self.agent = agent
@@ -25,14 +23,6 @@ class Utils:
         self.epoch_frames = 0
         self.epoch_reward_sum = 0
         self.epoch_reward_max = 0
-
-    @staticmethod
-    def _create_results_dir(rom_file_name):
-        execution_time = time.strftime("_%m-%d-%H-%M-%S", time.gmtime())
-        result_dir = rom_file_name.split('.')[0] + execution_time
-        results_dir = os.path.join('results', result_dir)
-        os.makedirs(results_dir)
-        return results_dir
 
     def _create_results_file(self):
         results_file_name = os.path.join(self.results_dir, 'results.csv')
@@ -51,10 +41,9 @@ class Utils:
             self.epoch_reward_max = episode_reward
         self.total_frames += episode_frames
 
+        message = 'Epoch: {}\tEpisode: {}\tReward: {}\tEpoch-Frames: {}/{}'
         results = [self.epoch, self.epoch_episodes, episode_reward,
                    self.epoch_frames, self.frames_per_epoch]
-        message = 'Epoch: {}\tEpisode: {}\tReward: {}\tEpoch-Frames: {}/{}'
-
         print(message.format(*results))
 
     def end_epoch(self):
@@ -70,11 +59,7 @@ class Utils:
         message = '\nEpoch: {}\tEpisodes: {}\tFrames: {}\tReward-Sum: {}\t' \
                   'Reward-Avg: {}\tReward-Max: {}\tTotal-Frames: {}/{}\n'
         results = results + [self.total_frames, self.max_frames]
-
         print(message.format(*results))
-
-        if self.store_agent:
-            self.save_agent()
 
         self.epoch += 1
         self.epoch_episodes = 0
@@ -82,15 +67,5 @@ class Utils:
         self.epoch_reward_sum = 0
         self.epoch_reward_max = 0
 
-    def save_agent(self):
-        """Save the agents QEC-table in a file."""
-        qec_prefix = os.path.join(self.results_dir, 'qec_')
-
-        # Save qec-table
-        with open(qec_prefix + str(self.epoch) + '.pkl', 'wb') as qec_file:
-            pickle.dump(self.agent.qec, qec_file, 2)
-
-        # Remove old qec-table to save storage space
-        qec_old = qec_prefix + str(self.epoch - 1) + '.pkl'
-        if os.path.isfile(qec_old):
-            os.remove(qec_old)
+    def close(self):
+        self.results_file.close()
