@@ -21,23 +21,24 @@ class MFECAgent:
         self.scale_size = (height, width)
 
         self.memory = []
-        self.qec = self._init_qec(qec_path, buffer_size, k)
-        self.projection = self.rs.randn(state_dimension,
-                                        height * width).astype(np.float32)
+        self.qec = self._init_qec(qec_path, buffer_size, k, state_dimension,
+                                  height * width)
 
         self.current_state = None
         self.current_action = None
         self.current_time = None
 
-    def _init_qec(self, qec_path, buffer_size, k):
+    def _init_qec(self, qec_path, buffer_size, k, d0, d1):
         if qec_path:
             with open(qec_path, 'rb') as qec_file:
                 qec = pickle.load(qec_file)
                 return qec
-        return QEC(self.actions, buffer_size, k)
+        # TODO test without float32
+        projection = self.rs.randn(d0, d1).astype(np.float32)
+        return QEC(self.actions, buffer_size, k, projection)
 
     def act(self, observation):
-        self.current_state = np.dot(self.projection, observation.flatten())
+        self.current_state = self.qec.project(observation)
         self.current_time = time.clock()
         if self.rs.random_sample() < self.epsilon:
             self.current_action = self.rs.choice(self.actions)
