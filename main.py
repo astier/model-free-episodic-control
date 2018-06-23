@@ -13,7 +13,7 @@ from mfec.utils import Utils
 
 # TODO store parameters in json-file
 ENVIRONMENT = 'Qbert-v0'  # More games at: https://gym.openai.com/envs/#atari
-AGENT_PATH = 'results/Qbert-v0_06-23-20-08-29/agent.pkl'
+AGENT_PATH = ''
 SAVE_AGENT = True
 RENDER = False
 RENDER_SLEEP = .04

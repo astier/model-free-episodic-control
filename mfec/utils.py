@@ -32,16 +32,16 @@ class Utils:
         self.total_frames += episode_frames
 
         message = 'Epoch: {}\tEpisode: {}\tReward: {}\tEpoch-Frames: {}/{}'
-        results = [self.epoch, self.epoch_episodes, episode_reward,
+        results = [self.epoch, self.epoch_episodes, int(episode_reward),
                    self.epoch_frames, self.frames_per_epoch]
         print(message.format(*results))
 
     def end_epoch(self):
         """Save the results for the given epoch in the results-file"""
         results = [self.epoch, self.epoch_episodes, self.epoch_frames,
-                   self.epoch_reward_sum,
+                   int(self.epoch_reward_sum),
                    round(self.epoch_reward_sum / self.epoch_episodes),
-                   self.epoch_reward_max]
+                   int(self.epoch_reward_max)]
         self.results_file.write('{},{},{},{},{},{}\n'.format(*results))
 
         message = '\nEpoch: {}\tEpisodes: {}\tFrames: {}\tReward-Sum: {}\t' \
