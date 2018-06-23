@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.neighbors.kd_tree import KDTree  # TODO pyflann?? paper?
 
 
-class QEC(object):
+class QEC:
 
     def __init__(self, actions, buffer_size, k):
         self.buffers = tuple([ActionBuffer(buffer_size) for _ in actions])
@@ -23,9 +23,11 @@ class QEC(object):
 
         value = .0
         neighbors = a_buffer.find_neighbors(state, self.k)
+
         for neighbor in neighbors:
             value += a_buffer.values[neighbor]
             a_buffer.time_steps[neighbor] = time_step  # TODO not in paper
+
         return value / self.k
 
     # TODO batch update
@@ -42,7 +44,7 @@ class QEC(object):
             a_buffer.add(state, new_value, new_time)
 
 
-class ActionBuffer(object):
+class ActionBuffer:
 
     def __init__(self, capacity):
         self._tree = None

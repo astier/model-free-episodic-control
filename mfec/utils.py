@@ -8,7 +8,7 @@ import time
 # TODO improve output and stats? library?
 # TODO store detailed-output
 # TODO round reward-avg
-class Utils(object):
+class Utils:
 
     def __init__(self, rom_file_name, frames_per_epoch, max_frames,
                  store_agent, agent):

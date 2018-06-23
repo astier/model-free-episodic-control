@@ -9,7 +9,7 @@ from mfec.qec import QEC
 
 
 # TODO use some common agent-interface
-class MFECAgent(object):
+class MFECAgent:
 
     def __init__(self, qec_path, buffer_size, k, discount, epsilon, height,
                  width, state_dimension, actions, seed):

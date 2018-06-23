@@ -11,7 +11,7 @@ from mfec.agent import MFECAgent
 from mfec.utils import Utils
 
 # TODO store parameters in json-file
-ENVIRONMENT = 'Qbert-v0'  # Check https://gym.openai.com/envs/#atari
+ENVIRONMENT = 'Qbert-v0'  # More games at: https://gym.openai.com/envs/#atari
 AGENT_PATH = ''
 SAVE_AGENT = True
 RENDER = False
@@ -64,8 +64,8 @@ def run_episode():  # TODO paper 30 initial states?
 
         action = agent.act(preprocess(observation))
         observation, reward, done, _ = env.step(action)
-
         agent.receive_reward(reward)
+
         episode_reward += reward
         episode_frames += FRAMESKIP
 
@@ -80,12 +80,10 @@ def preprocess(observation):
 
 if __name__ == "__main__":
     random.seed(SEED)
-
     env = gym.make(ENVIRONMENT)
     env.env.frameskip = FRAMESKIP
     env.env.ale.setFloat('repeat_action_probability',
                          REPEAT_ACTION_PROBABILITY)
-
     agent = MFECAgent(AGENT_PATH, ACTION_BUFFER_SIZE, K, DISCOUNT, EPSILON,
                       SCALE_HEIGHT, SCALE_WIDTH, STATE_DIMENSION,
                       range(env.action_space.n), SEED)
