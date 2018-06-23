@@ -18,8 +18,8 @@ RENDER = False
 RENDER_SLEEP = .04
 
 SEED = 42
-EPOCHS = 25
-FRAMES_PER_EPOCH = 40000
+EPOCHS = 10
+FRAMES_PER_EPOCH = 100000
 
 ACTION_BUFFER_SIZE = 1000000
 FRAMESKIP = 4
@@ -38,8 +38,9 @@ utils = None
 
 
 def run_algorithm():
+    frames_left = 0
     for _ in range(EPOCHS):
-        frames_left = FRAMES_PER_EPOCH
+        frames_left += FRAMES_PER_EPOCH
         while frames_left > 0:
             episode_frames, episode_reward = run_episode()
             frames_left -= episode_frames
