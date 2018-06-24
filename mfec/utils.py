@@ -9,12 +9,10 @@ class Utils:
     def __init__(self, results_dir, frames_per_epoch, max_frames):
         self.results_file = open(os.path.join(results_dir, 'results.csv'), 'w')
         self.results_file.write(
-            "epoch, episodes, frames, reward_sum, reward_avg, reward_max\n")
-
+            'epoch, episodes, frames, reward_sum, reward_avg, reward_max\n')
         self.frames_per_epoch = frames_per_epoch
         self.max_frames = max_frames
         self.total_frames = 0
-
         self.epoch = 1
         self.epoch_episodes = 0
         self.epoch_frames = 0

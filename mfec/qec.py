@@ -17,13 +17,11 @@ class QEC:
         if state_index:
             a_buffer.steps[state_index] = step  # TODO not in paper
             return a_buffer.values[state_index]
-
         if len(a_buffer) <= self.k:  # TODO init-phase
             return float('inf')
 
         value = .0
         neighbors = a_buffer.find_neighbors(state, self.k)
-
         for neighbor in neighbors:
             value += a_buffer.values[neighbor]
             a_buffer.steps[neighbor] = step  # TODO not in paper
@@ -34,7 +32,6 @@ class QEC:
     def update(self, state, action, new_value, new_step):
         a_buffer = self.buffers[action]
         state_index = a_buffer.find_state(state)
-
         if state_index:
             old_value = a_buffer.values[state_index]
             old_time = a_buffer.steps[state_index]

@@ -14,17 +14,14 @@ class MFECAgent:
     def __init__(self, buffer_size, k, discount, epsilon, height,
                  width, state_dimension, actions, seed):
         self.rs = np.random.RandomState(seed)
-
         self.discount = discount
         self.epsilon = epsilon
         self.actions = actions
         self.scale_size = (height, width)
-
         self.memory = []
         self.qec = QEC(self.actions, buffer_size, k)
         self.projection = self.rs.randn(state_dimension,
                                         height * width).astype(np.float32)
-
         self.current_state = None
         self.current_action = None
         self.current_step = 0

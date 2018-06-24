@@ -14,7 +14,7 @@ from mfec.utils import Utils
 # TODO store parameters in json-file
 ENVIRONMENT = 'Qbert-v0'  # More games at: https://gym.openai.com/envs/#atari
 AGENT_PATH = ''
-SAVE_AGENT = True
+SAVE_AGENT = True  # TODO remove feature?
 RENDER = False
 RENDER_SLEEP = .04
 
@@ -24,7 +24,7 @@ FRAMES_PER_EPOCH = 10000
 
 ACTION_BUFFER_SIZE = 1000000
 FRAMESKIP = 4
-REPEAT_ACTION_PROBABILITY = .0
+REPEAT_ACTION_PROB = .0
 K = 11
 DISCOUNT = 1
 EPSILON = .005
@@ -36,7 +36,7 @@ STATE_DIMENSION = 64
 env = None
 agent = None
 utils = None
-result_dir = None
+agent_dir = None
 
 
 def run_algorithm():
@@ -50,7 +50,7 @@ def run_algorithm():
             utils.end_episode(episode_frames, episode_reward)
 
         utils.end_epoch()
-        agent.save(results_dir)
+        agent.save(agent_dir)
 
     utils.close()
     env.close()
@@ -86,12 +86,11 @@ def preprocess(observation):
     return imresize(grey, size=(SCALE_HEIGHT, SCALE_WIDTH))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     random.seed(SEED)
     env = gym.make(ENVIRONMENT)
     env.env.frameskip = FRAMESKIP
-    env.env.ale.setFloat('repeat_action_probability',
-                         REPEAT_ACTION_PROBABILITY)
+    env.env.ale.setFloat('repeat_action_probability', REPEAT_ACTION_PROB)
 
     if AGENT_PATH:
         agent = MFECAgent.load(AGENT_PATH)
@@ -100,8 +99,9 @@ if __name__ == "__main__":
                           SCALE_HEIGHT, SCALE_WIDTH, STATE_DIMENSION,
                           range(env.action_space.n), SEED)
 
-    execution_time = time.strftime("_%m-%d-%H-%M-%S", time.gmtime())
-    results_dir = os.path.join('results', ENVIRONMENT + execution_time)
-    os.makedirs(os.path.join(results_dir))
-    utils = Utils(results_dir, FRAMES_PER_EPOCH, EPOCHS * FRAMES_PER_EPOCH)
+    execution_time = time.strftime('_%m-%d-%H-%M-%S', time.gmtime())
+    agent_dir = os.path.join('agents', ENVIRONMENT + execution_time)
+    os.makedirs(os.path.join(agent_dir))
+
+    utils = Utils(agent_dir, FRAMES_PER_EPOCH, EPOCHS * FRAMES_PER_EPOCH)
     run_algorithm()
