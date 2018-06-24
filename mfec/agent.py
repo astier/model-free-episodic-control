@@ -22,7 +22,7 @@ class MFECAgent:
         self.discount = discount
         self.epsilon = epsilon
 
-        self.state = np.empty(state_dimension, np.float32)
+        self.state = np.empty(state_dimension, self.projection.dtype)
         self.action = int
         self.time = 0  # TODO ordering instead?
 
