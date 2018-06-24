@@ -19,14 +19,14 @@ RENDER_SPEED = .04
 
 EPOCHS = 10
 FRAMES_PER_EPOCH = 100000
-SEED = 42
+SEED = 123
 
 ACTION_BUFFER_SIZE = 1000000
 K = 11
 DISCOUNT = 1
 EPSILON = .005
 FRAMESKIP = 4
-REPEAT_ACTION_PROB = .0
+REPEAT_ACTION_PROB = .0  # Default gym-setting is .25
 
 SCALE_HEIGHT = 84
 SCALE_WIDTH = 84
@@ -55,7 +55,7 @@ def run_algorithm():
     env.close()
 
 
-def run_episode():  # TODO paper 30 initial states?
+def run_episode():  # TODO paper 30 initial states | wrapper?
     episode_frames = 0
     episode_reward = 0
 

@@ -3,7 +3,7 @@
 import os.path
 
 
-# TODO library?
+# TODO library/wrapper | nicer output (grid) | pandas
 class Utils:
 
     def __init__(self, results_dir, frames_per_epoch, max_frames):

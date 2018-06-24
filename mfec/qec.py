@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import numpy as np
-from sklearn.neighbors.kd_tree import KDTree  # TODO pyflann?? paper?
+from sklearn.neighbors.kd_tree import KDTree  # TODO pyflann | paper
 
 
 class QEC:

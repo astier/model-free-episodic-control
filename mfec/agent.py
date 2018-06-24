@@ -17,7 +17,7 @@ class MFECAgent:
         self.memory = []
         self.actions = actions
         self.qec = QEC(self.actions, buffer_size, k)
-        self.projection = self.rs.randn(state_dimension,  # TODO float16?
+        self.projection = self.rs.randn(state_dimension,
                                         height * width).astype(np.float32)
         self.discount = discount
         self.epsilon = epsilon
@@ -30,10 +30,10 @@ class MFECAgent:
         self.time += 1
         self.state = np.dot(self.projection, observation.flatten())
 
-        if self.rs.random_sample() < self.epsilon:  # explore
+        if self.rs.random_sample() < self.epsilon:  # Exploration
             self.action = self.rs.choice(self.actions)
 
-        else:  # exploit
+        else:  # Exploitation
             values = [self.qec.estimate(self.state, action) for action in
                       self.actions]
             best_actions = np.argwhere(values == np.max(values)).flatten()
