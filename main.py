@@ -14,20 +14,19 @@ from mfec.utils import Utils
 # TODO store parameters in json-file
 ENVIRONMENT = 'Qbert-v0'  # More games at: https://gym.openai.com/envs/#atari
 AGENT_PATH = ''
-SAVE_AGENT = True  # TODO remove feature?
 RENDER = False
-RENDER_SLEEP = .04
+RENDER_SPEED = .04
 
-SEED = 42
 EPOCHS = 2
 FRAMES_PER_EPOCH = 10000
+SEED = 42
 
 ACTION_BUFFER_SIZE = 1000000
-FRAMESKIP = 4
-REPEAT_ACTION_PROB = .0
 K = 11
 DISCOUNT = 1
 EPSILON = .005
+FRAMESKIP = 4
+REPEAT_ACTION_PROB = .0
 
 SCALE_HEIGHT = 84
 SCALE_WIDTH = 84
@@ -68,7 +67,7 @@ def run_episode():  # TODO paper 30 initial states?
 
         if RENDER:
             env.render()
-            time.sleep(RENDER_SLEEP)
+            time.sleep(RENDER_SPEED)
 
         action = agent.choose_action(preprocess(observation))
         observation, reward, done, _ = env.step(action)
