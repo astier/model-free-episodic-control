@@ -1,14 +1,12 @@
 # Model-Free Episodic Control
 
 ## Description
-Implementation of the **[Model-Free Episodic Control](http://arxiv.org/abs/1606.04460)** algorithm. This is a fork of the repository from **[sudeepraja](https://github.com/sudeepraja/Model-Free-Episodic-Control)**, whereas his work is a fork of the original work from **[ShibiHe](https://github.com/ShibiHe/Model-Free-Episodic-Control)**. This project is maintained by **[astier](https://github.com/astier/Model-Free-Episodic-Control)**. Feedback is appreciated.
+Implementation of the **[Model-Free Episodic Control](http://arxiv.org/abs/1606.04460)** algorithm. All deviations from the paper are listed below. This is a fork of the repository from **[sudeepraja](https://github.com/sudeepraja/Model-Free-Episodic-Control)**, whereas his work is a fork of the original work from **[ShibiHe](https://github.com/ShibiHe/Model-Free-Episodic-Control)**. Feedback is appreciated.
 
 ## Dependencies
-All dependencies can be found in the file *requirements*. The most important are:
-- Python 3
-- [OpenAI Gym](https://github.com/openai/gym)
+This project is written in *Python 3* and uses *[OpenAI Gym](https://github.com/openai/gym)* for the environments. However, the agent itself is independent of *OpenAi Gym* and can be used with any framework. All dependencies can be found in the file *requirements*.
 
-I would recommend to install them in a separate conda environment. This can be done by first navigating to the directory where you would like to download this project and then executing the following steps:
+I would recommend creating a separate conda environment. This can be done by first navigating to the directory where you would like to download this project and then executing the following steps:
 ```
 git clone https://github.com/astier/Model-Free-Episodic-Control.git
 cd Model-Free-Episodic-Control
@@ -18,42 +16,32 @@ pip install gym
 pip install gym[atari]
 ```
 
+## Parameters
+Every important aspect and parameter of the program can be configured by a few variables which can be found on top of the file *main.py* and are written in UPPERCASE. The default settings are those of the paper.
+
 ## Put your first MFEC-Agent on the Battlefield
 Navigate into to the projects top folder and execute:
 ```
 source activate mfec
 python main.py
 ```
-The program should load a pre-trained MFEC-Agent and show a display where you can watch the MFEC-Agent play the atari-game _Q*Bert_. Some information should be printed regularly on the terminal like the average reward he got in a certain episode. After every epoch, the agent's results are stored in a results directory. Also, the agents QEC-table is stored there after every epoch as a file with the extension *.pkl* which latter can be used to load the agent back into memory.
+The program should load a pre-trained agent and show a display where you can watch him play the atari-game _Q*Bert_. Some information should be printed regularly on the terminal like the average reward he got in a certain episode. After every epoch, the agents' results are stored in the directory named *agents*. Also, the agent is stored after every epoch as a file with the extension *.pkl* which latter can be used to load him back into memory.
 
 ## Train your first MFEC-Agent to be Combat-Ready
-To train your own agent from scratch you simply have to change the variable *QEC_TABLE_PATH* which you can find in the *main.py* file from this:
-> QEC_TABLE_PATH = 'example_agent_rambo.pkl'
+To train your own agent from scratch you simply have to change the variable *AGENT_PATH* to this:
+> AGENT_PATH = ''
 
-to this:
-> QEC_TABLE_PATH = ''
+It might also be advisable to turn off the rendering so the training will be faster. Just set the variable *RENDER* to this:
+> RENDER = False
 
-It might also be advisable to turn off the display so the training will be faster. Just set the variable *DISPLAY_SCREEN* to *False*:
-> DISPLAY_SCREEN = False
+Now you can track the agent's performance which will be printed regularly on the terminal. When you cancel the training before its finished you can continue later on by loading your trained agent back into memory. Just change the variable *AGENT_PATH* to this:
+> AGENT_PATH = 'path_to_your_agent/agent.pkl'
 
-That's it. Now you can track the agent's performance which will be printed regularly in the terminal. Remember the agent is saved to the hard-disk after every epoch and will be called something like *qec_num.pkl*. When you cancel the training before its finished you can continue later on by loading your trained agent back into memory. Just change the variable *QEC_TABLE_PATH* from this:
-> QEC_TABLE_PATH = ''
-
-to this:
-> QEC_TABLE_PATH = 'path_to_your_killer_agent_aka_terminator'
-
-## Training- and Hyperparameters
-Every important aspect of the program like:
-- The game which should be played (default = _Q*Bert_)
-- Loading of pre-trained agents
-- Turning ON/OFF rendering
-- Hyperparameters
-- Training duration
-- etc.
-
-can be configured by a few variables which you can find on top of the file *main.py* and which are written in UPPERCASE. The default settings are those of the paper.
-
-## Notes
+## Deviations
+All (possible) deviations from the original algorithm which the author is aware of are listed here.
 - VAE is not implemented. Only random projection.
-- Currently, the algorithm might still do not work exactly like in the paper (I'm working on it tho').
-- The agent is trained on a CPU.
+- The paper mentions that the agent starts at one of 30 possible initial states. However, in this implementation, the agent starts in a state whichever is generated by the environment.
+- The paper does not specify which KNN-Algorithm was used. This project implements KNN as a KDTree.  The search-tree is rebuilt after every update.
+- When an action has to be chosen and multiple actions with the same maximum value exist then an action is chosen randomly from this set of actions. The paper does not describe what it does in such a case.
+- The paper does not describe what happens when an estimation via KNN has to be performed but the size of the respective action-buffer is smaller than *k*. This implementation returns in such a case *float(inf)*. This ensures that this action gets executed and the action-buffer gets filled with k elements as fast as possible.
+- The precision from the random-projection-matrix is transformed from *float64* to *float32*. This saves space and seems not to have any negative impact on the learning-performance. The paper does not describe which precision is used.
