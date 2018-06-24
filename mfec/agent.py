@@ -14,37 +14,37 @@ class MFECAgent:
     def __init__(self, buffer_size, k, discount, epsilon, height,
                  width, state_dimension, actions, seed):
         self.rs = np.random.RandomState(seed)
+        self.memory = []
+        self.actions = actions
+        self.qec = QEC(self.actions, buffer_size, k)
+        self.projection = self.rs.randn(state_dimension,  # TODO float16?
+                                        height * width).astype(np.float32)
         self.discount = discount
         self.epsilon = epsilon
-        self.actions = actions
-        self.scale_size = (height, width)
-        self.memory = []
-        self.qec = QEC(self.actions, buffer_size, k)
-        self.projection = self.rs.randn(state_dimension,
-                                        height * width).astype(np.float32)
-        self.current_state = None
-        self.current_action = None
-        self.current_step = 0
+
+        self.state = np.empty(state_dimension, np.float32)
+        self.action = int
+        self.time = 0  # TODO ordering instead?
 
     def choose_action(self, observation):
-        self.current_step += 1
-        self.current_state = np.dot(self.projection, observation.flatten())
-        if self.rs.random_sample() < self.epsilon:
-            self.current_action = self.rs.choice(self.actions)
-        else:
-            self.current_action = self._exploit()
-        return self.current_action
+        self.time += 1
+        self.state = np.dot(self.projection, observation.flatten())
 
-    def _exploit(self):
-        values = [
-            self.qec.estimate(self.current_state, action, self.current_step)
-            for action in self.actions]
-        return self.rs.choice(np.argwhere(values == np.max(values)).flatten())
+        if self.rs.random_sample() < self.epsilon:  # explore
+            self.action = self.rs.choice(self.actions)
+
+        else:  # exploit
+            values = [self.qec.estimate(self.state, action) for action in
+                      self.actions]
+            best_actions = np.argwhere(values == np.max(values)).flatten()
+            self.action = self.rs.choice(best_actions)
+
+        return self.action
 
     def receive_reward(self, reward):
         self.memory.append(
-            {'state': self.current_state, 'action': self.current_action,
-             'reward': reward, 'step': self.current_step})
+            {'state': self.state, 'action': self.action, 'reward': reward,
+             'time': self.time})
 
     def train(self):
         value = .0
@@ -52,7 +52,7 @@ class MFECAgent:
             experience = self.memory.pop()
             value = value * self.discount + experience['reward']
             self.qec.update(experience['state'], experience['action'], value,
-                            experience['step'])
+                            experience['time'])
 
     def save(self, results_dir):
         with open(os.path.join(results_dir, 'agent.pkl'), 'wb') as file:
