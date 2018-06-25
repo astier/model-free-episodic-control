@@ -84,9 +84,9 @@ def preprocess(observation):
 if __name__ == '__main__':
     random.seed(SEED)
 
-    execution_time = time.strftime('_%m-%d-%H-%M-%S', time.gmtime())
+    execution_time = time.strftime('_%y-%m-%d-%H-%M-%S', time.gmtime())
     agent_dir = os.path.join('agents', ENVIRONMENT + execution_time)
-    os.makedirs(os.path.join(agent_dir))
+    os.makedirs(agent_dir)
 
     utils = Utils(agent_dir, FRAMES_PER_EPOCH, EPOCHS * FRAMES_PER_EPOCH)
     env = gym.make(ENVIRONMENT)
