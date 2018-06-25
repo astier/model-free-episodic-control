@@ -25,7 +25,7 @@ Navigate into to the projects top folder and execute:
 source activate mfec
 python main.py
 ```
-The program should load a pre-trained agent and show a display where you can watch him play the atari-game _Q*Bert_. Some information should be printed regularly on the terminal like the average reward he got in a certain episode. After every epoch, the agents' results are stored in the directory named *agents*. Also, the agent is stored after every epoch as a file with the extension *.pkl* which latter can be used to load him back into memory.
+The program should load a pre-trained agent and show a display where you can watch him play the atari game _Q*Bert_. Some information should be printed regularly on the terminal like the average reward he got in a certain epoch. After every epoch, the agents' results are stored in the directory named *agents*. Also, the agent is stored after every epoch as a file with the extension *.pkl* which latter can be used to load him back into memory.
 
 ## Train your first MFEC-Agent to be Combat-Ready
 To train your own agent from scratch you simply have to change the variable *AGENT_PATH* to this:
