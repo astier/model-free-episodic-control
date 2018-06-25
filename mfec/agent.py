@@ -59,6 +59,6 @@ class MFECAgent:
             pickle.dump(self, file, 2)
 
     @staticmethod
-    def load(agent_path):
-        with open(agent_path, 'rb') as qec_file:
-            return pickle.load(qec_file)
+    def load(path):
+        with open(path, 'rb') as file:
+            return pickle.load(file)
