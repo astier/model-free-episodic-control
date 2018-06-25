@@ -41,6 +41,7 @@ class Utils:
                    round(self.epoch_reward_sum / self.epoch_episodes),
                    int(self.epoch_reward_max)]
         self.results_file.write('{},{},{},{},{},{}\n'.format(*results))
+        self.results_file.flush()
 
         message = '\nEpoch: {}\tEpisodes: {}\tFrames: {}\tReward-Sum: {}\t' \
                   'Reward-Avg: {}\tReward-Max: {}\tTotal-Frames: {}/{}\n'
