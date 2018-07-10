@@ -12,8 +12,7 @@ git clone https://github.com/astier/Model-Free-Episodic-Control.git
 cd Model-Free-Episodic-Control
 conda create --name mfec --file requirements
 source activate mfec
-pip install gym
-pip install gym[atari]
+pip install gym gym[atari]
 ```
 
 ## Parameters
