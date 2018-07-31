@@ -12,7 +12,7 @@ git clone https://github.com/astier/Model-Free-Episodic-Control.git
 cd Model-Free-Episodic-Control
 conda create --name mfec --file requirements
 source activate mfec
-pip install gym gym[atari]
+pip install gym[atari]
 ```
 
 ## Parameters
@@ -43,4 +43,3 @@ All (possible) deviations from the paper which the author is aware of are listed
 - The paper does not specify which KNN-Algorithm is used. This project implements KNN as a KDTree.  The search-tree is rebuilt frequently.
 - When an action has to be chosen and multiple actions with the same maximum value exist then an action is chosen randomly from this set of actions. The paper does not describe what the algorithm does in such a case.
 - The paper does not describe what happens when an estimation via KNN has to be performed when the size of the respective action-buffer is smaller than *k*. This implementation returns in such a case *float(inf)*. This ensures that this action gets executed and the action-buffer gets filled with k elements as fast as possible.
-- The random-projection precision is *float32*. This saves space and seems not to have any negative impact on the learning-performance. No description in the paper.
