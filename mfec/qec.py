@@ -54,9 +54,7 @@ class ActionBuffer:
         return None
 
     def find_neighbors(self, state, k):
-        if self._tree:
-            return self._tree.query([state], k)[1][0]
-        return []
+        return self._tree.query([state], k)[1][0] if self._tree else []
 
     def add(self, state, value, time):
         if len(self) < self.capacity:

@@ -13,8 +13,8 @@ from mfec.utils import Utils
 
 # TODO store parameters in json-file
 ENVIRONMENT = 'Qbert-v0'  # More games at: https://gym.openai.com/envs/#atari
-AGENT_PATH = 'agents/Qbert-v0_06-25-06-05-38/agent.pkl'
-RENDER = True
+AGENT_PATH = ''
+RENDER = False
 RENDER_SPEED = .04
 
 EPOCHS = 10
@@ -94,13 +94,10 @@ if __name__ == '__main__':
     try:
         env.env.frameskip = FRAMESKIP
         env.env.ale.setFloat('repeat_action_probability', REPEAT_ACTION_PROB)
-
-        if AGENT_PATH:
-            agent = MFECAgent.load(AGENT_PATH)
-        else:
-            agent = MFECAgent(ACTION_BUFFER_SIZE, K, DISCOUNT, EPSILON,
-                              SCALE_HEIGHT, SCALE_WIDTH, STATE_DIMENSION,
-                              range(env.action_space.n), SEED)
+        agent = MFECAgent.load(AGENT_PATH) if AGENT_PATH else MFECAgent(
+            ACTION_BUFFER_SIZE, K, DISCOUNT, EPSILON,
+            SCALE_HEIGHT, SCALE_WIDTH, STATE_DIMENSION,
+            range(env.action_space.n), SEED)
         run_algorithm()
     finally:
         utils.close()
