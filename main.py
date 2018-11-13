@@ -13,11 +13,11 @@ from mfec.utils import Utils
 
 # TODO store parameters in json-file
 ENVIRONMENT = 'Qbert-v0'  # More games at: https://gym.openai.com/envs/#atari
-AGENT_PATH = 'agents/Qbert-v0_06-25-06-05-38/agent.pkl'
+AGENT_PATH = 'agents/Qbert-v0_18-11-13-19-14-08/agent.pkl'
 RENDER = True
 RENDER_SPEED = .04
 
-EPOCHS = 10
+EPOCHS = 11
 FRAMES_PER_EPOCH = 100000
 SEED = 42
 
