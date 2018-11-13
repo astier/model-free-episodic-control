@@ -1,1 +1,1 @@
-#! /usr/bin/ale python2
+#! /usr/bin/ale python3
