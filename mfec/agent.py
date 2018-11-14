@@ -4,6 +4,7 @@ import os.path
 import pickle
 
 import numpy as np
+from scipy.misc.pilutil import imresize
 
 from mfec.qec import QEC
 
@@ -14,6 +15,7 @@ class MFECAgent:
     def __init__(self, buffer_size, k, discount, epsilon, height,
                  width, state_dimension, actions, seed):
         self.rs = np.random.RandomState(seed)
+        self.size = (height, width)
         self.memory = []
         self.actions = actions
         self.qec = QEC(self.actions, buffer_size, k)
@@ -24,16 +26,22 @@ class MFECAgent:
 
         self.state = np.empty(state_dimension, self.projection.dtype)
         self.action = int
-        self.time = 0  # TODO ordering instead?
+        self.time = 0
 
     def choose_action(self, observation):
         self.time += 1
-        self.state = np.dot(self.projection, observation.flatten())
 
-        if self.rs.random_sample() < self.epsilon:  # Exploration
+        # Preprocess and project observation to state
+        obs_processed = np.mean(observation, axis=2)
+        obs_processed = imresize(obs_processed, size=self.size)
+        self.state = np.dot(self.projection, obs_processed.flatten())
+
+        # Exploration
+        if self.rs.random_sample() < self.epsilon:
             self.action = self.rs.choice(self.actions)
 
-        else:  # Exploitation
+        # Exploitation
+        else:
             values = [self.qec.estimate(self.state, action) for action in
                       self.actions]
             best_actions = np.argwhere(values == np.max(values)).flatten()

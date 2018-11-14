@@ -5,16 +5,14 @@ import random
 import time
 
 import gym
-import numpy as np
-from scipy.misc.pilutil import imresize
 
 from mfec.agent import MFECAgent
 from mfec.utils import Utils
 
 # TODO store parameters in json-file
 ENVIRONMENT = 'Qbert-v0'  # More games at: https://gym.openai.com/envs/#atari
-AGENT_PATH = 'agents/Qbert-v0_18-11-13-19-14-08/agent.pkl'
-RENDER = True
+AGENT_PATH = ''
+RENDER = False
 RENDER_SPEED = .04
 
 EPOCHS = 11
@@ -65,7 +63,7 @@ def run_episode():  # TODO paper 30 initial states | wrapper?
             env.render()
             time.sleep(RENDER_SPEED)
 
-        action = agent.choose_action(preprocess(observation))
+        action = agent.choose_action(observation)
         observation, reward, done, _ = env.step(action)
         agent.receive_reward(reward)
 
@@ -74,11 +72,6 @@ def run_episode():  # TODO paper 30 initial states | wrapper?
 
     agent.train()
     return episode_frames, episode_reward
-
-
-def preprocess(observation):
-    grey = np.mean(observation, axis=2)
-    return imresize(grey, size=(SCALE_HEIGHT, SCALE_WIDTH))
 
 
 if __name__ == '__main__':
