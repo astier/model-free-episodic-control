@@ -10,8 +10,8 @@ from mfec.agent import MFECAgent
 from mfec.utils import Utils
 
 ENVIRONMENT = 'Qbert-v0'  # More games at: https://gym.openai.com/envs/#atari
-AGENT_PATH = ''
-RENDER = False
+AGENT_PATH = 'agents/Qbert-v0_1542210528/agent.pkl'
+RENDER = True
 RENDER_SPEED = .04
 
 EPOCHS = 11
