@@ -9,7 +9,6 @@ from scipy.misc.pilutil import imresize
 from mfec.qec import QEC
 
 
-# TODO use some common agent-interface
 class MFECAgent:
 
     def __init__(self, buffer_size, k, discount, epsilon, height,

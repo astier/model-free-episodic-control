@@ -16,7 +16,7 @@ class QEC:
 
         if state_index:
             return buffer.values[state_index]
-        if len(buffer) <= self.k:  # TODO init-phase
+        if len(buffer) <= self.k:
             return float('inf')
 
         value = .0
@@ -25,7 +25,6 @@ class QEC:
             value += buffer.values[neighbor]
         return value / self.k
 
-    # TODO batch update
     def update(self, state, action, value, time):
         buffer = self.buffers[action]
         state_index = buffer.find_state(state)
@@ -65,7 +64,7 @@ class ActionBuffer:
             min_time_idx = np.argmin(self.times)
             if time > self.times[min_time_idx]:
                 self.replace(state, value, time, min_time_idx)
-        self._tree = KDTree(self.states)  # TODO smarter tree-update
+        self._tree = KDTree(self.states)
 
     def replace(self, state, value, time, index):
         self.states[index] = state

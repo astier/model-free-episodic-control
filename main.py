@@ -9,7 +9,6 @@ import gym
 from mfec.agent import MFECAgent
 from mfec.utils import Utils
 
-# TODO store parameters in json-file
 ENVIRONMENT = 'Qbert-v0'  # More games at: https://gym.openai.com/envs/#atari
 AGENT_PATH = ''
 RENDER = False
@@ -49,7 +48,7 @@ def run_algorithm():
         agent.save(agent_dir)
 
 
-def run_episode():  # TODO paper 30 initial states | wrapper?
+def run_episode():
     episode_frames = 0
     episode_reward = 0
 
