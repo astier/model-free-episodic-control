@@ -61,7 +61,7 @@ class ActionBuffer:
             self.values.append(value)
             self.times.append(time)
         else:
-            min_time_idx = np.argmin(self.times)
+            min_time_idx = int(np.argmin(self.times))
             if time > self.times[min_time_idx]:
                 self.replace(state, value, time, min_time_idx)
         self._tree = KDTree(self.states)
