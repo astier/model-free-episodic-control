@@ -77,8 +77,8 @@ def run_episode():  # TODO paper 30 initial states | wrapper?
 if __name__ == '__main__':
     random.seed(SEED)
 
-    execution_time = time.strftime('_%y-%m-%d-%H-%M-%S', time.gmtime())
-    agent_dir = os.path.join('agents', ENVIRONMENT + execution_time)
+    execution_time = str(round(time.time()))
+    agent_dir = os.path.join('agents', ENVIRONMENT + '_' + execution_time)
     os.makedirs(agent_dir)
 
     utils = Utils(agent_dir, FRAMES_PER_EPOCH, EPOCHS * FRAMES_PER_EPOCH)
