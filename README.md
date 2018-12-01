@@ -10,7 +10,7 @@ I would recommend creating a separate conda environment to install the dependenc
 ```
 git clone https://github.com/astier/Model-Free-Episodic-Control.git
 cd Model-Free-Episodic-Control
-conda create --name mfec --file requirements
+conda create -n mfec scikit-learn
 source activate mfec
 pip install gym[atari]
 ```
