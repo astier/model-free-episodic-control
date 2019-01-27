@@ -9,10 +9,10 @@ import gym
 from mfec.agent import MFECAgent
 from mfec.utils import Utils
 
-ENVIRONMENT = 'Qbert-v0'  # More games at: https://gym.openai.com/envs/#atari
-AGENT_PATH = 'agents/Qbert-v0_1542210528/agent.pkl'
+ENVIRONMENT = "Qbert-v0"  # More games at: https://gym.openai.com/envs/#atari
+AGENT_PATH = "agents/Qbert-v0_1542210528/agent.pkl"
 RENDER = True
-RENDER_SPEED = .04
+RENDER_SPEED = 0.04
 
 EPOCHS = 11
 FRAMES_PER_EPOCH = 100000
@@ -21,10 +21,10 @@ SEED = 42
 ACTION_BUFFER_SIZE = 1000000
 K = 11
 DISCOUNT = 1
-EPSILON = .005
+EPSILON = 0.005
 
 FRAMESKIP = 4  # Default gym-setting is (2, 5)
-REPEAT_ACTION_PROB = .0  # Default gym-setting is .25
+REPEAT_ACTION_PROB = 0.0  # Default gym-setting is .25
 
 SCALE_HEIGHT = 84
 SCALE_WIDTH = 84
@@ -36,7 +36,7 @@ def main():
 
     # Create agent-directory
     execution_time = str(round(time.time()))
-    agent_dir = os.path.join('agents', ENVIRONMENT + '_' + execution_time)
+    agent_dir = os.path.join("agents", ENVIRONMENT + "_" + execution_time)
     os.makedirs(agent_dir)
 
     # Initialize utils, environment and agent
@@ -45,11 +45,21 @@ def main():
 
     try:
         env.env.frameskip = FRAMESKIP
-        env.env.ale.setFloat('repeat_action_probability', REPEAT_ACTION_PROB)
-        agent = MFECAgent.load(AGENT_PATH) if AGENT_PATH else MFECAgent(
-            ACTION_BUFFER_SIZE, K, DISCOUNT, EPSILON,
-            SCALE_HEIGHT, SCALE_WIDTH, STATE_DIMENSION,
-            range(env.action_space.n), SEED)
+        env.env.ale.setFloat("repeat_action_probability", REPEAT_ACTION_PROB)
+        if AGENT_PATH:
+            agent = MFECAgent.load(AGENT_PATH)
+        else:
+            agent = MFECAgent(
+                ACTION_BUFFER_SIZE,
+                K,
+                DISCOUNT,
+                EPSILON,
+                SCALE_HEIGHT,
+                SCALE_WIDTH,
+                STATE_DIMENSION,
+                range(env.action_space.n),
+                SEED,
+            )
         run_algorithm(agent, agent_dir, env, utils)
 
     finally:
@@ -94,5 +104,5 @@ def run_episode(agent, env):
     return episode_frames, episode_reward
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

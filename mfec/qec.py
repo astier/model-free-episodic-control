@@ -5,7 +5,6 @@ from sklearn.neighbors.kd_tree import KDTree
 
 
 class QEC:
-
     def __init__(self, actions, buffer_size, k):
         self.buffers = tuple([ActionBuffer(buffer_size) for _ in actions])
         self.k = k
@@ -17,9 +16,9 @@ class QEC:
         if state_index:
             return buffer.values[state_index]
         if len(buffer) <= self.k:
-            return float('inf')
+            return float("inf")
 
-        value = .0
+        value = 0.0
         neighbors = buffer.find_neighbors(state, self.k)
         for neighbor in neighbors:
             value += buffer.values[neighbor]
@@ -37,7 +36,6 @@ class QEC:
 
 
 class ActionBuffer:
-
     def __init__(self, capacity):
         self._tree = None
         self.capacity = capacity
