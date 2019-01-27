@@ -10,11 +10,11 @@ This project is written in *Python 3* and uses *[OpenAI Gym](https://github.com/
 
 I would recommend creating a separate conda environment to install the dependencies. This can be done by first navigating to the directory where you would like to download this project and then executing the following steps:
 
-```
+```sh
 git clone https://github.com/astier/Model-Free-Episodic-Control.git
 cd Model-Free-Episodic-Control
 conda create -n mfec scikit-learn
-source activate mfec
+conda activate mfec
 pip install gym[atari]
 ```
 
@@ -26,7 +26,7 @@ Every important aspect and parameter of the program can be configured by a few v
 
 Navigate into to the projects top folder and execute:
 
-```
+```sh
 source activate mfec
 python main.py
 ```
@@ -36,13 +36,13 @@ The program should load a pre-trained agent and show a display where you can wat
 ## Train your first Agent to be Combat-Ready
 
 To train your own agent from scratch you simply have to change the variable *AGENT_PATH* to this:
-> AGENT_PATH = ''
+> AGENT_PATH = ""
 
 It might also be advisable to turn off the rendering so the training will be faster. Just set the variable *RENDER* to this:
 > RENDER = False
 
 Now you can track the agent's performance which will be printed regularly on the terminal. When you cancel the training before its finished you can continue later on by loading your trained agent back into memory. Just change the variable *AGENT_PATH* to this:
-> AGENT_PATH = 'path_to_your_agent/agent.pkl'
+> AGENT_PATH = "path_to_your_agent/agent.pkl"
 
 ## Deviations
 
