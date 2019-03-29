@@ -2,7 +2,7 @@
 
 ## Description
 
-Implementation of the [Model-Free Episodic Control](http://arxiv.org/abs/1606.04460) algorithm (except VAE). This project is maintained by [astier](https://github.com/astier) and is a fork of the repository from [sudeepraja](https://github.com/sudeepraja/Model-Free-Episodic-Control), whereas his work is a fork of the original work from [ShibiHe](https://github.com/ShibiHe/Model-Free-Episodic-Control). All deviations from the paper which I am aware of are listed below.
+Implementation of the [Model-Free Episodic Control](http://arxiv.org/abs/1606.04460) algorithm (except the VAE part). This project is maintained by [astier](https://github.com/astier) and is a fork of the repository from [sudeepraja](https://github.com/sudeepraja/Model-Free-Episodic-Control), whereas his work is a fork of the original work from [ShibiHe](https://github.com/ShibiHe/Model-Free-Episodic-Control). All deviations from the paper which I am aware of are listed below.
 
 ## Dependencies
 
