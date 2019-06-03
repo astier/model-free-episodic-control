@@ -11,8 +11,8 @@ This project is written in *Python 3* and uses *[OpenAI Gym](https://github.com/
 I would recommend creating a separate conda environment to install the dependencies. This can be done by first navigating to the directory where you would like to download this project and then executing the following steps:
 
 ```sh
-git clone https://github.com/astier/Model-Free-Episodic-Control
-cd Model-Free-Episodic-Control
+git clone https://github.com/astier/model-free-episodic-control
+cd model-free-episodic-control
 conda create -n mfec scikit-learn
 conda activate mfec
 pip install gym[atari]
